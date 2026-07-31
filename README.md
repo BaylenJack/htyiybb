@@ -30,12 +30,12 @@
 
 ```bash
 # 1. 下载 SKILL.md
-curl -L -o lin-daiyu-perspective.md \
-    https://baylenjack.github.io/htyiybb/lin-daiyu-perspective.md
+curl -L -o SKILL.md \
+    https://baylenjack.github.io/htyiybb/SKILL.md
 
 # 2. 放到你的 skills 目录
 mkdir -p ~/.claude/skills/lin-daiyu-perspective
-mv lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+mv SKILL.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
 
 # 3. 重启 Claude,说"用黛玉视角"即可
 ```
@@ -45,7 +45,7 @@ mv lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
 ```bash
 git clone https://github.com/BaylenJack/htyiybb.git
 mkdir -p ~/.claude/skills/lin-daiyu-perspective
-cp htyiybb/lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+cp htyiybb/SKILL.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
 rm -rf htyiybb
 ```
 
@@ -54,7 +54,7 @@ rm -rf htyiybb
 ```bash
 cd ~/.claude/skills
 git clone https://github.com/BaylenJack/htyiybb.git _tmp_daiyu
-cp _tmp_daiyu/lin-daiyu-perspective.md lin-daiyu-perspective/SKILL.md
+cp _tmp_daiyu/SKILL.md lin-daiyu-perspective/SKILL.md
 rm -rf _tmp_daiyu
 ```
 
@@ -99,7 +99,7 @@ skill 也会**自动**在你提到黛玉相关意象(葬花、还泪、木石前
 ```
 htyiybb/
 ├── index.html              # 古典淡雅风的发布主页
-├── lin-daiyu-perspective.md # SKILL.md 原文件(可直接下载)
+├── SKILL.md # SKILL.md 原文件(可直接下载)
 ├── README.md                # 你正在读的这个
 └── LICENSE                  # MIT
 ```
