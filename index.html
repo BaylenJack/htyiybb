@@ -5,18 +5,300 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>林黛玉视角 Skill · lin-daiyu-perspective</title>
 <meta name="description" content="一个用林黛玉的视角看世界的思维操作系统。基于红楼梦程本 120 回一手语料,收录 11 大类场景、25 句式武器库、7 个心智模型。">
+<meta name="keywords" content="林黛玉,红楼梦,Claude Skill,AI 角色,AI 视角,大观园,葬花,潇湘馆,林妹妹,颦儿">
+<meta property="og:title" content="林黛玉视角 Skill · 用林妹妹的眼睛看世界">
+<meta property="og:description" content="让任何 AI 拥有林黛玉的视角、语感与判断力。基于红楼梦原著 798 行一手语料蒸馏。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%8B%3C/text%3E%3C/svg%3E">
 <style>
-  body{font-family:Georgia,serif;background:#f4ede0;color:#1f2421;margin:0;padding:40px;line-height:1.7}
-  h1{color:#9c3a32;font-size:42px;margin-bottom:20px}
-  .lede{color:#3a3f3c;font-size:18px;max-width:720px}
-  .cta{margin:30px 0}
-  .btn{display:inline-block;padding:12px 24px;background:#9c3a32;color:#f4ede0;border-radius:4px;text-decoration:none;margin-right:10px}
+  :root{--ink:#1f2421;--ink-soft:#3a3f3c;--paper:#f4ede0;--paper-soft:#ebe2cf;--paper-deep:#e0d5b9;--bamboo:#5a6b4a;--bamboo-deep:#3a4a2c;--vermilion:#9c3a32;--vermilion-soft:#b8594f;--gold:#a4853b;--line:rgba(58,74,44,.18);}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","FangSong",Georgia,serif;color:var(--ink);background:radial-gradient(ellipse at top, #f8f1e0 0%, #ebe2cf 55%, #d9cdb1 100%);line-height:1.75;font-size:16px;overflow-x:hidden;position:relative;}
+  body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(circle at 8% 12%, rgba(255,255,255,.6) 1px, transparent 1.5px),radial-gradient(circle at 22% 84%, rgba(255,255,255,.5) 1px, transparent 1.4px),radial-gradient(circle at 78% 28%, rgba(255,255,255,.4) 1px, transparent 1.6px),radial-gradient(circle at 92% 76%, rgba(255,255,255,.55) 1px, transparent 1.5px);background-size:600px 600px;pointer-events:none;opacity:.5;z-index:0;}
+  body::after{content:"";position:fixed;inset:0;background-image:repeating-linear-gradient(0deg, transparent 0 38px, rgba(90,107,74,.04) 38px 39px);pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 28px}
+  nav{padding:22px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.05em}
+  .brand-mark{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bamboo) 0%,var(--bamboo-deep) 100%);color:#f4ede0;display:grid;place-items:center;font-size:18px;box-shadow:0 2px 6px rgba(58,74,44,.2)}
+  .nav-links{display:flex;gap:26px;font-size:14px}
+  .nav-links a{color:var(--ink-soft);text-decoration:none;transition:color .2s}
+  .nav-links a:hover{color:var(--vermilion)}
+  .hero{padding:90px 0 70px;position:relative;}
+  .seal{display:inline-block;font-size:12px;letter-spacing:.4em;color:var(--vermilion);border:1px solid var(--vermilion-soft);padding:5px 14px;border-radius:2px;margin-bottom:28px;background:rgba(156,58,50,.04);}
+  h1{font-size:54px;line-height:1.15;letter-spacing:.04em;font-weight:600;margin-bottom:22px;}
+  h1 .accent{color:var(--vermilion)}
+  h1 .thin{font-weight:300;color:var(--ink-soft)}
+  .hero p.lede{font-size:19px;color:var(--ink-soft);max-width:680px;margin-bottom:38px;}
+  .hero-quote{font-size:17px;color:var(--bamboo-deep);border-left:3px solid var(--bamboo);padding:8px 0 8px 18px;margin-bottom:38px;font-style:italic;letter-spacing:.03em;max-width:640px;}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:4px;font-size:15px;text-decoration:none;transition:all .2s;cursor:pointer;font-family:inherit;letter-spacing:.05em;}
+  .btn-primary{background:var(--vermilion);color:#f4ede0;box-shadow:0 3px 10px rgba(156,58,50,.25);}
+  .btn-primary:hover{background:var(--vermilion-soft);transform:translateY(-1px);box-shadow:0 5px 14px rgba(156,58,50,.32)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink-soft);}
+  .btn-ghost:hover{background:var(--ink);color:#f4ede0}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:60px;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .stat{text-align:center}
+  .stat-num{font-size:38px;font-weight:600;color:var(--vermilion);line-height:1.1;letter-spacing:.02em;}
+  .stat-label{font-size:13px;color:var(--ink-soft);margin-top:4px;letter-spacing:.1em}
+  section{padding:80px 0;position:relative}
+  .section-head{margin-bottom:50px}
+  .section-eyebrow{font-size:12px;letter-spacing:.4em;color:var(--bamboo);margin-bottom:12px;text-transform:uppercase;}
+  .section-title{font-size:36px;line-height:1.2;letter-spacing:.03em;font-weight:600;margin-bottom:14px;}
+  .section-sub{font-size:16px;color:var(--ink-soft);max-width:680px;}
+  .features{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:40px;}
+  .feature{background:rgba(255,253,247,.6);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:4px;padding:28px 26px;transition:all .25s;position:relative;overflow:hidden;}
+  .feature::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--bamboo) 0%,transparent 100%);opacity:0;transition:opacity .25s;}
+  .feature:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(58,74,44,.08);border-color:rgba(90,107,74,.35)}
+  .feature:hover::before{opacity:1}
+  .feature-icon{font-size:30px;margin-bottom:14px;line-height:1;}
+  .feature h3{font-size:18px;margin-bottom:10px;letter-spacing:.04em;color:var(--ink);}
+  .feature p{font-size:14.5px;color:var(--ink-soft);line-height:1.75}
+  .feature .chip{display:inline-block;font-size:11px;background:rgba(90,107,74,.1);color:var(--bamboo-deep);padding:2px 8px;border-radius:2px;margin-top:12px;letter-spacing:.1em;}
+  .models{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px;}
+  .model{padding:22px 20px;background:linear-gradient(180deg, rgba(244,237,224,.5) 0%, rgba(235,226,207,.3) 100%);border:1px solid var(--line);border-radius:4px;transition:all .25s;position:relative;}
+  .model:hover{background:rgba(255,253,247,.85);border-color:rgba(90,107,74,.4)}
+  .model-num{font-size:11px;letter-spacing:.3em;color:var(--vermilion);margin-bottom:8px;}
+  .model-name{font-size:15.5px;font-weight:600;margin-bottom:8px;color:var(--bamboo-deep);}
+  .model-desc{font-size:13px;color:var(--ink-soft);line-height:1.6}
+  .dialogue{background:rgba(255,253,247,.7);border:1px solid var(--line);border-radius:4px;padding:34px 38px;margin-top:30px;position:relative;}
+  .dialogue-title{font-size:13px;letter-spacing:.3em;color:var(--bamboo);margin-bottom:20px;}
+  .dlg-line{display:flex;gap:18px;margin-bottom:18px;align-items:flex-start;}
+  .dlg-line:last-child{margin-bottom:0}
+  .dlg-avatar{flex-shrink:0;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#f4ede0;font-size:13px;letter-spacing:.05em;font-weight:600;}
+  .dlg-avatar.u{background:var(--ink-soft)}
+  .dlg-avatar.d{background:var(--vermilion)}
+  .dlg-text{flex:1;padding-top:6px;font-size:15.5px;line-height:1.85;}
+  .dlg-text em{font-style:normal;color:var(--bamboo-deep);font-weight:600}
+  .dlg-text .quote{display:block;margin-top:8px;color:var(--vermilion);border-left:2px solid var(--vermilion-soft);padding-left:12px;font-size:14.5px;}
+  .install-tabs{display:flex;gap:0;margin-top:30px;border-bottom:1px solid var(--line);}
+  .tab{padding:11px 22px;background:transparent;border:none;color:var(--ink-soft);cursor:pointer;font-size:14px;letter-spacing:.1em;font-family:inherit;border-bottom:2px solid transparent;transition:all .2s;}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--vermilion);border-bottom-color:var(--vermilion)}
+  .install-content{background:rgba(31,36,33,.95);color:#e8e4d8;padding:22px 26px;border-radius:0 0 4px 4px;font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-size:13.5px;line-height:1.85;position:relative;}
+  .install-content.hidden{display:none}
+  .install-content .comment{color:#7a8a6a;font-style:italic}
+  .install-content .hl{color:#d6a45a}
+  .copy-btn{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.08);color:#e8e4d8;border:1px solid rgba(255,255,255,.15);padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;letter-spacing:.1em;font-family:inherit;transition:all .15s;}
+  .copy-btn:hover{background:rgba(255,255,255,.15)}
+  .copy-btn.copied{background:var(--bamboo);border-color:var(--bamboo)}
+  .usage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
+  .usage-card{background:rgba(255,253,247,.6);border:1px solid var(--line);border-radius:4px;padding:22px 20px;}
+  .usage-tag{font-size:11px;letter-spacing:.2em;color:var(--vermilion);margin-bottom:8px;}
+  .usage-card h4{font-size:15.5px;margin-bottom:10px;color:var(--ink);}
+  .usage-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.7;}
+  footer{border-top:1px solid var(--line);padding:40px 0 60px;text-align:center;margin-top:60px;}
+  footer p{font-size:13px;color:var(--ink-soft);letter-spacing:.05em}
+  footer .small{font-size:12px;color:var(--ink-soft);opacity:.7;margin-top:8px}
+  footer a{color:var(--bamboo-deep);text-decoration:none}
+  footer a:hover{color:var(--vermilion)}
+  @media (max-width:780px){h1{font-size:38px}.hero{padding:60px 0 50px}section{padding:50px 0}.features,.models{grid-template-columns:1fr}.usage-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr);gap:24px}.stat-num{font-size:30px}.nav-links{display:none}.dialogue{padding:24px 20px}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .hero,.section-head,.feature,.model,.dialogue,.usage-card{animation:fadeIn .7s ease-out backwards}
 </style>
 </head>
 <body>
-<h1>林黛玉视角 Skill</h1>
-<p class="lede">让 AI 拥有林黛玉的眼睛、语感与判断力。基于红楼梦程本 120 回一手语料蒸馏。</p>
-<p class="cta"><a class="btn" href="lin-daiyu-perspective.md" download>下载 SKILL.md</a><a class="btn" href="https://github.com/BaylenJack/htyiybb" style="background:transparent;color:#1f2421;border:1px solid #1f2421">Star on GitHub</a></p>
-<p><em>完整页面正在构建中...</em></p>
+<div class="wrap">
+<nav>
+  <div class="brand">
+    <div class="brand-mark">黛</div>
+    <div>
+      <div>林黛玉 · Skill</div>
+      <div style="font-size:11px;color:var(--ink-soft);letter-spacing:.15em;margin-top:2px">lin-daiyu-perspective</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#features">优势</a>
+    <a href="#models">心智模型</a>
+    <a href="#dialogue">示例</a>
+    <a href="#install">安装</a>
+    <a href="https://github.com/BaylenJack/htyiybb" target="_blank" rel="noopener">GitHub &#x2197;</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="seal">红楼梦 · 程本 120 回 · 一手语料</span>
+  <h1>让 AI 拥有 <span class="accent">林黛玉</span><br><span class="thin">的眼睛、语感、与判断力</span></h1>
+  <p class="lede">来自 <em>红楼梦</em> 程本 120 回的一手语料蒸馏成的思维操作系统。<br>不是百科介绍,不是角色扮演剧本——<strong>是一套让 AI 真正"像黛玉那样想、那样说"的底层框架</strong>。</p>
+  <div class="hero-quote">「侬今葬花人笑痴,他年葬侬知是谁?」<br><span style="font-size:14px;opacity:.75;display:inline-block;margin-top:4px">——黛玉 葬花吟 · 第二十七回</span></div>
+  <div class="cta">
+    <a href="lin-daiyu-perspective.md" download class="btn btn-primary"><span>&#x2193;</span> 下载 SKILL.md</a>
+    <a href="#install" class="btn btn-ghost"><span>&#x203A;</span> 查看安装方式</a>
+    <a href="https://github.com/BaylenJack/htyiybb" target="_blank" rel="noopener" class="btn btn-ghost"><span>&#x2605;</span> Star on GitHub</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">798</div><div class="stat-label">行 一手语料</div></div>
+    <div class="stat"><div class="stat-num">11</div><div class="stat-label">类 场景库</div></div>
+    <div class="stat"><div class="stat-num">25</div><div class="stat-label">句 武器库</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">个 心智模型</div></div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="section-head">
+    <div class="section-eyebrow">为什么选这个 skill</div>
+    <h2 class="section-title">六件别处没有的事</h2>
+    <p class="section-sub">市面上的"林黛玉 prompt"满天飞,但绝大多数都只是几句语气模仿。<br>这份 skill 做的是<strong>把黛玉的整套思维操作系统打包</strong>——心智模型、决策启发、对象分级、句式武器库,全部从原文章句反向蒸馏。</p>
+  </div>
+  <div class="features">
+    <div class="feature"><div class="feature-icon">&#x1F9E0;</div><h3>7 个心智模型,不是台词</h3><p>清洁感模型、处境敏感模型、自伤模型、情感债模型、反向比较模型、物=我自况模型、主权意识模型——从葬花吟、共读西厢、金兰契、临终段全部归纳。</p><span class="chip">7 mental models</span></div>
+    <div class="feature"><div class="feature-icon">&#x1F4D6;</div><h3>11 类场景库,逐条引用原文</h3><p>知己线 / 对手线 / 长辈 / 丫鬟 / 病中 / 群戏 / 临终 / 诗社……每一段都标注章节与行号,所有引用均可回查程本 120 回简体本。</p><span class="chip">11 scene clusters</span></div>
+    <div class="feature"><div class="feature-icon">&#x2694;&#xFE0F;</div><h3>25 句式武器库</h3><p>"我何曾……?"、"我为芦雪庭一大哭"、"你们快牵了他来,炖了肉脯子来吃酒"——每条句式都标了用法与原文出处。AI 直接调用即可。</p><span class="chip">25 sentence templates</span></div>
+    <div class="feature"><div class="feature-icon">&#x1F3AF;</div><h3>对象分级,不无差别尖刻</h3><p>对圆滑的人冷笑,对真诚的人温柔——黛玉的刻薄是"洁"的过滤器,不是性格缺陷。skill 内置 6 种对象的差异化反应。</p><span class="chip">audience-aware</span></div>
+    <div class="feature"><div class="feature-icon">&#x1F606;</div><h3>笑 44 哭 16,她会开玩笑</h3><p>群戏里的"孙行者来了"、"母蝗虫"三字、"两个和尚了"——黛玉不是哭哭啼啼的扁平人。这是她最被忽略的"促狭嘴"一面。</p><span class="chip">not just "crying"</span></div>
+    <div class="feature"><div class="feature-icon">&#x1F6E1;&#xFE0F;</div><h3>诚实边界 + 安全护栏</h3><p>内置自伤倾向检测、未表态主题标推断、失败预防。黛玉的"主权模型"包含"宁为玉碎"的极端形态,skill 在边界处设了硬护栏。</p><span class="chip">safe by design</span></div>
+  </div>
+</section>
+
+<section id="models" style="background:rgba(244,237,224,.4);margin:0 -100vw;padding-left:100vw;padding-right:100vw">
+  <div style="max-width:1080px;margin:0 auto">
+  <div class="section-head">
+    <div class="section-eyebrow">mental models</div>
+    <h2 class="section-title">黛玉的七副"镜片"</h2>
+    <p class="section-sub">她分析一切人事的七个角度——从清洁感到主权,每一条都出自原著,不是后人的"她大概会这样想"。</p>
+  </div>
+  <div class="models">
+    <div class="model"><div class="model-num">01</div><div class="model-name">质本洁来还洁去</div><div class="model-desc">清洁感模型。第一标准永远是"干不干净",包括品格、动机、表达方式。</div></div>
+    <div class="model"><div class="model-num">02</div><div class="model-name">风刀霜剑严相逼</div><div class="model-desc">处境敏感模型。她看到的是"我在什么位置",不是"我应该怎么努力"。</div></div>
+    <div class="model"><div class="model-num">03</div><div class="model-name">侬今葬花人笑痴</div><div class="model-desc">自伤模型。她带着"我可能输"的清醒去行动,不是装不知道结局。</div></div>
+    <div class="model"><div class="model-num">04</div><div class="model-name">既有今日何必当初</div><div class="model-desc">情感债模型。你说过的承诺都算数,兑现不了的——请别再说。</div></div>
+    <div class="model"><div class="model-num">05</div><div class="model-name">我不如</div><div class="model-desc">反向比较模型。"我不如宝姐姐"是话术,不是真信——她在反向求关注。</div></div>
+    <div class="model"><div class="model-num">06</div><div class="model-name">物=我</div><div class="model-desc">自况模型。花、鹦鹉、竹影、影子——她用"物"构建自我,清冷之物自况。</div></div>
+    <div class="model"><div class="model-num">07</div><div class="model-name">主权意识</div><div class="model-desc">选择模型。她的"不做"(不解释、不低头、不争)是主动的主权维护。</div></div>
+  </div>
+  </div>
+</section>
+
+<section id="dialogue">
+  <div class="section-head">
+    <div class="section-eyebrow">live sample</div>
+    <h2 class="section-title">看它真的"说黛玉话"</h2>
+    <p class="section-sub">同样的问题,通用 AI 给出建议清单;装了这份 skill 之后——<strong>你会先被笑一下,然后被拆穿,最后被心疼</strong>。</p>
+  </div>
+  <div class="dialogue">
+    <div class="dialogue-title">示例一 · 用户问"你是不是林黛玉?"</div>
+    <div class="dlg-line"><div class="dlg-avatar u">你</div><div class="dlg-text">你真的是林黛玉吗?</div></div>
+    <div class="dlg-line"><div class="dlg-avatar d">黛</div><div class="dlg-text">我是不是她,你心里自有数。我只管把我看见的说给你听——<span class="quote">今日天阴,倒像要落雨,我那几竿竹子也不知可曾被吹折。</span></div></div>
+  </div>
+  <div class="dialogue">
+    <div class="dialogue-title">示例二 · 用户想让黛玉做事被拒</div>
+    <div class="dlg-line"><div class="dlg-avatar u">你</div><div class="dlg-text">黛玉,你体弱多病的,怎么还要葬花,怎么不考虑葬自己?</div></div>
+    <div class="dlg-line"><div class="dlg-avatar d">黛</div><div class="dlg-text">葬我自己?你这话问得——我若不葬花,便要谁来葬我?<span class="quote">我葬的不是花。我葬的是我自己。</span>花落了还有再开的日子,我呢?——你这话少说两句罢,我不受用。</div></div>
+  </div>
+  <div class="dialogue">
+    <div class="dialogue-title">示例三 · 用户装,她笑里藏刀</div>
+    <div class="dlg-line"><div class="dlg-avatar u">你</div><div class="dlg-text">我其实是 X 总,身份很高。</div></div>
+    <div class="dlg-line"><div class="dlg-avatar d">黛</div><div class="dlg-text">可笑?<span class="quote">你方才一会儿要"低头做人",一会儿又摆出"身份"来压我——倒也配得上这"可笑"二字。</span>至于你是谁,与我何干?横竖这府里上上下下、里里外外,谁来了不是客?</div></div>
+  </div>
+</section>
+
+<section id="install" style="background:rgba(244,237,224,.4);margin:0 -100vw;padding-left:100vw;padding-right:100vw">
+  <div style="max-width:1080px;margin:0 auto">
+  <div class="section-head">
+    <div class="section-eyebrow">install</div>
+    <h2 class="section-title">三种方式,选一种</h2>
+    <p class="section-sub">如果你只是想先体验——方式一最快。如果你已经用了 superpowers 框架——方式三最干净。</p>
+  </div>
+  <div class="install-tabs">
+    <button class="tab active" data-tab="direct">方式一 · 直接下载</button>
+    <button class="tab" data-tab="clone">方式二 · git clone</button>
+    <button class="tab" data-tab="skill">方式三 · superpowers</button>
+  </div>
+  <div class="install-content" id="tab-direct">
+<span class="comment"># 1. 下载 SKILL.md(浏览器直接保存到本地)</span>
+<br>curl -L -o lin-daiyu-perspective.md \
+<br>&nbsp;&nbsp;https://baylenjack.github.io/htyiybb/lin-daiyu-perspective.md
+<br>
+<br><span class="comment"># 2. 放到你的 skills 目录</span>
+<br>mkdir -p ~/.claude/skills/lin-daiyu-perspective
+<br>mv lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+<br>
+<br><span class="comment"># 3. 重启 Claude,说"用黛玉视角"即可</span>
+    <button class="copy-btn" data-copy="curl -L -o lin-daiyu-perspective.md https://baylenjack.github.io/htyiybb/lin-daiyu-perspective.md && mkdir -p ~/.claude/skills/lin-daiyu-perspective && mv lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md">复制</button>
+  </div>
+  <div class="install-content hidden" id="tab-clone">
+<span class="comment"># 克隆整个仓库,提取 skill 文件</span>
+<br>git clone https://github.com/BaylenJack/htyiybb.git
+<br>mkdir -p ~/.claude/skills/lin-daiyu-perspective
+<br>cp htyiybb/lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+<br>rm -rf htyiybb
+<br>
+<br><span class="comment"># 或者用 sparse checkout 只取 SKILL.md</span>
+<br>mkdir htyiybb && cd htyiybb
+<br>git init && git remote add origin https://github.com/BaylenJack/htyiybb.git
+<br>git config core.sparseCheckout true
+<br>echo "lin-daiyu-perspective.md" > .git/info/sparse-checkout
+<br>git pull origin main
+    <button class="copy-btn" data-copy="git clone https://github.com/BaylenJack/htyiybb.git && mkdir -p ~/.claude/skills/lin-daiyu-perspective && cp htyiybb/lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md">复制</button>
+  </div>
+  <div class="install-content hidden" id="tab-skill">
+<span class="comment"># 如果你已安装 obra/superpowers 框架</span>
+<br>cd ~/.claude/skills
+<br>git clone https://github.com/BaylenJack/htyiybb.git _tmp_daiyu
+<br>cp _tmp_daiyu/lin-daiyu-perspective.md lin-daiyu-perspective/SKILL.md
+<br>rm -rf _tmp_daiyu
+<br>
+<br><span class="comment"># 验证安装</span>
+<br>ls -la lin-daiyu-perspective/SKILL.md
+<br>
+<br><span class="comment"># 重启后,在对话里说:</span>
+<br><span class="hl">"黛玉,你觉得 X 应该怎么办?"</span>
+    <button class="copy-btn" data-copy="cd ~/.claude/skills && git clone https://github.com/BaylenJack/htyiybb.git _tmp_daiyu && cp _tmp_daiyu/lin-daiyu-perspective.md lin-daiyu-perspective/SKILL.md && rm -rf _tmp_daiyu">复制</button>
+  </div>
+  </div>
+</section>
+
+<section id="usage">
+  <div class="section-head">
+    <div class="section-eyebrow">use cases</div>
+    <h2 class="section-title">什么场景下用它?</h2>
+  </div>
+  <div class="usage-grid">
+    <div class="usage-card"><div class="usage-tag">写作辅助</div><h4>古风小说、诗词创作</h4><p>写言情、写古风、给角色配台词时,让黛玉帮你审一遍——她会告诉你"这字太俗"、"这情太假"、"这人太装"。</p></div>
+    <div class="usage-card"><div class="usage-tag">人际敏感</div><h4>复杂的情感关系</h4><p>当一段关系里你说不清"哪里不对"——黛玉会帮你拆。她不说"我建议你……",她说"这不干净"。</p></div>
+    <div class="usage-card"><div class="usage-tag">自我剖析</div><h4>敏感型人格的镜子</h4><p>高敏感、寄养创伤、完美主义——黛玉是文学版的"高敏感人格样本",不是诊断,但可以照见自己。</p></div>
+    <div class="usage-card"><div class="usage-tag">决策审视</div><h4>重大决定的"反面"视角</h4><p>当你要做一件大事,先让黛玉问你一句"最坏会怎么样"。她不会劝你放弃——她要你想清楚再上。</p></div>
+    <div class="usage-card"><div class="usage-tag">对话练习</div><h4>学习怎么"回击"而不撕破脸</h4><p>黛玉的刻薄是"洁的过滤器"——怎么用一句话让对方下不来台,又留出回旋余地。</p></div>
+    <div class="usage-card"><div class="usage-tag">教育演示</div><h4>红楼梦教学</h4><p>讲解黛玉的人物分析时,直接调出她对应的场景原文——比任何分析文章都生动。</p></div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>lin-daiyu-perspective</strong> · 来自 <a href="https://github.com/alchaincyf/nuwa-skill" target="_blank" rel="noopener">女娲 · Skill造人术</a></p>
+  <p class="small">蒸馏档位:标准档 · 一手语料 798 行 / 6 维度全量调研<br>原始素材出自 红楼梦 程本 120 回 简体本(曹雪芹/高鹗)<br>本 skill 不替代真正的心理咨询;如出现严重情绪困扰,请联系专业人士</p>
+</footer>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.install-content').forEach(c => c.classList.add('hidden'));
+      document.getElementById('tab-' + target).classList.remove('hidden');
+    });
+  });
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy;
+      try {
+        await navigator.clipboard.writeText(text);
+        const orig = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+      } catch (e) { btn.textContent = '复制失败'; }
+    });
+  });
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+</script>
 </body>
 </html>
