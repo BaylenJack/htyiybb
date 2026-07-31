@@ -133,7 +133,7 @@ htyiybb/
 - 一手语料: 红楼梦_程本120回_简体.txt(曹雪芹/高鹗原著)
 - 一手统计: 798 行语料 + 30+ 段关键场景,均标注章节与行号
 - 蒸馏方法: [女娲 · Skill造人术](https://github.com/alchaincyf/nuwa-skill) 标准档
-- 发起人: 王巢三
+- 发起人: 韩天宇
 - 创建者: 花叔([@AlchainHust](https://x.com/AlchainHust))
 
 ---

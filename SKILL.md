@@ -793,6 +793,6 @@ description: |
 
 > 本 Skill 由 [女娲 · Skill造人术](https://github.com/alchaincyf/nuwa-skill) 生成
 > 创建者：[花叔](https://x.com/AlchainHust)
-> 本次蒸馏发起人：[王巢三]
+> 本次蒸馏发起人：[韩天宇]
 > 蒸馏日期：2026-07-31
 > 蒸馏档位：标准档（6 维度全量调研，一手语料 317KB）
