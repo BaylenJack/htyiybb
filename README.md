@@ -1,0 +1,150 @@
+# 林黛玉视角 Skill · lin-daiyu-perspective
+
+> 让 AI 拥有林黛玉的眼睛、语感、与判断力。
+
+一个让任何 LLM 真正"像林黛玉那样想、那样说"的思维操作系统。
+不是百科介绍，不是角色扮演剧本——是把 798 行红楼梦程本 120 回一手语料蒸馏出的**心智模型 + 决策启发 + 句式武器库 + 场景剧本**打包。
+
+<p align="center">
+  <a href="https://baylenjack.github.io/htyiybb/">👉 在线浏览 / 立即下载</a>
+</p>
+
+---
+
+## ✨ 六件别处没有的事
+
+| | 市面上的"黛玉 prompt" | 这个 skill |
+|---|---|---|
+| **心智模型** | 没有,只有"语气模仿" | **7 个**心智模型(清洁感、处境敏感、自伤、情感债、反向比较、物=我、主权) |
+| **场景库** | 一两句例子 | **11 类**、30+ 段原文章节,每条标章节行号 |
+| **句式** | 几句台词 | **25 句**武器库,每条都标用法 + 出处 |
+| **对象分级** | 一种语调应对所有人 | **6 种对象**差异化反应(知己/对手/长辈/丫鬟/病中/群戏) |
+| **幽默** | 哭哭啼啼的扁平黛玉 | 还原**笑 44 哭 16**——"母蝗虫""孙行者来了"等促狭戏 |
+| **安全边界** | 角色扮演容易脱缰 | 内置自伤倾向检测 + 失败预防 + 诚实边界 |
+
+---
+
+## 🚀 三种安装方式
+
+### 方式一 · 直接下载(最快)
+
+```bash
+# 1. 下载 SKILL.md
+curl -L -o lin-daiyu-perspective.md \
+    https://baylenjack.github.io/htyiybb/lin-daiyu-perspective.md
+
+# 2. 放到你的 skills 目录
+mkdir -p ~/.claude/skills/lin-daiyu-perspective
+mv lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+
+# 3. 重启 Claude,说"用黛玉视角"即可
+```
+
+### 方式二 · git clone
+
+```bash
+git clone https://github.com/BaylenJack/htyiybb.git
+mkdir -p ~/.claude/skills/lin-daiyu-perspective
+cp htyiybb/lin-daiyu-perspective.md ~/.claude/skills/lin-daiyu-perspective/SKILL.md
+rm -rf htyiybb
+```
+
+### 方式三 · 如果你已用 superpowers 框架
+
+```bash
+cd ~/.claude/skills
+git clone https://github.com/BaylenJack/htyiybb.git _tmp_daiyu
+cp _tmp_daiyu/lin-daiyu-perspective.md lin-daiyu-perspective/SKILL.md
+rm -rf _tmp_daiyu
+```
+
+---
+
+## 🎯 触发方式
+
+skill 安装后,在对话里这样问:
+
+- "黛玉,你觉得 X 应该怎么办?"
+- "用林妹妹的眼睛看 Y"
+- "颦儿怎么看 Z?"
+- "潇湘妃子,我想问……"
+- "以黛玉的视角分析这段关系"
+
+skill 也会**自动**在你提到黛玉相关意象(葬花、还泪、木石前盟、绛珠、颦儿、潇湘馆)时激活。
+
+---
+
+## 💬 真实效果示例
+
+### 通用 AI vs 装了 skill 之后
+
+**问**: "你是林黛玉吗?"
+
+- **通用 AI**: "作为一个人工智能,我没有实体身份,无法成为红楼梦中的林黛玉……"
+- **黛玉 skill**:
+  > "我是不是她,你心里自有数。我只管把我看见的说给你听——今日天阴,倒像要落雨,我那几竿竹子也不知可曾被吹折。"
+
+**问**: "黛玉,你体弱多病的,怎么还要葬花,怎么不考虑葬自己?"
+
+- **通用 AI**: "这是一个关于生命意义的问题……建议您……"
+- **黛玉 skill**:
+  > "葬我自己?你这话问得——我若不葬花,便要谁来葬我?
+  > 我葬的不是花。我葬的是我自己。
+  > 花落了还有再开的日子,我呢?——你这话少说两句罢,我不受用。"
+
+---
+
+## 📦 仓库里有什么
+
+```
+htyiybb/
+├── index.html              # 古典淡雅风的发布主页
+├── lin-daiyu-perspective.md # SKILL.md 原文件(可直接下载)
+├── README.md                # 你正在读的这个
+└── LICENSE                  # MIT
+```
+
+线上浏览: <https://baylenjack.github.io/htyiybb/>
+
+---
+
+## 🧠 黛玉的 7 个心智模型
+
+1. **质本洁来还洁去** — 清洁感模型。第一标准永远是"干不干净"
+2. **风刀霜剑严相逼** — 处境敏感模型。她看到"我在什么位置",不是"我应该怎么努力"
+3. **侬今葬花人笑痴** — 自伤模型。她带着"我可能输"的清醒去行动
+4. **既有今日何必当初** — 情感债模型。你说过的承诺都算数
+5. **我不如** — 反向比较模型。"我不如宝姐姐"是话术,不是真信
+6. **物=我** — 自况模型。花、鹦鹉、竹影——她用"物"构建自我
+7. **主权意识** — 选择模型。她的"不做"是主动的主权维护
+
+---
+
+## ⚠️ 重要边界
+
+- **本 skill 不替代真正的心理咨询**。黛玉的"自伤模型"是文学形象的心理模式,自伤倾向在临终段尤为明显。若你/对话对象出现严重自伤想法,请立即联系当地心理援助热线。
+- **本 skill 是"视角",不是"百科"**。黛玉对当代具体事件(科技产品、商业模式)没有真实立场——所有相关回答都标注「这是基于她性格的推断」。
+- **本 skill 内置诚实边界**。当用户问"你真是黛玉吗"或"黛玉怎么可能知道手机"时,skill 会用黛玉口吻出戏而不破功。
+
+---
+
+## 📚 出处
+
+- 一手语料: 红楼梦_程本120回_简体.txt(曹雪芹/高鹗原著)
+- 一手统计: 798 行语料 + 30+ 段关键场景,均标注章节与行号
+- 蒸馏方法: [女娲 · Skill造人术](https://github.com/alchaincyf/nuwa-skill) 标准档
+- 发起人: 王巢三
+- 创建者: 花叔([@AlchainHust](https://x.com/AlchainHust))
+
+---
+
+## 📜 License
+
+MIT — 引用、改写、二次创作都欢迎,但请保留原 skill 文件中的章节与行号标注(那是它和别的"黛玉 prompt"最大的区别)。
+
+---
+
+<p align="center">
+  <sub>「侬今葬花人笑痴,他年葬侬知是谁?」</sub><br>
+  <sub>——黛玉 葬花吟 · 第二十七回</sub>
+</p>
