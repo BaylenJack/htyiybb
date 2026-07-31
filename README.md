@@ -31,7 +31,7 @@
 ```bash
 # 1. 下载 SKILL.md
 curl -L -o SKILL.md \
-    https://baylenjack.github.io/htyiybb/SKILL.md
+    https://raw.githubusercontent.com/BaylenJack/htyiybb/main/SKILL.md
 
 # 2. 放到你的 skills 目录
 mkdir -p ~/.claude/skills/lin-daiyu-perspective
