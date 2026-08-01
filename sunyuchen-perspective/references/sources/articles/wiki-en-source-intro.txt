@@ -1,0 +1,25 @@
+﻿{{Short description|Chinese-born crypto billionaire (born 1990)}}
+{{Western name order|Justin Sun}}
+{{protection padlock|small=yes}}
+{{Use mdy dates|date=May 2020}}
+{{Infobox officeholder
+| name = Justin Sun
+| native_name = {{no bold|孙宇晨}}
+| native_name_lang = zh
+| image = File:Head of the Grenadian Delegation to the 12th World Trade Organization Ministerial Conference Justin Sun.jpg
+| image_size = 
+| caption = Sun at [[World Trade Organization Ministerial Conference of 2022|MC12]] in 2022
+| office = Permanent Representative of Grenada to the [[World Trade Organization]]
+| term_start = 2021
+| term_end = 2023
+| birth_date = {{Birth date and age text|July 30, 1990}}
+| birth_place = [[Xining]], [[Qinghai]], China
+| known_for = Founding [[Tron (cryptocurrency)|TRON]]
+| website = {{URL|https://hejustinsun.com/}}
+| education = [[Peking University]] ([[Bachelor of Arts|BA]])<br />[[University of Pennsylvania]] ([[Master of Arts|MA]])
+}}
+'''Justin Sun''' ({{lang-zh|s=孙宇晨|p=Sūn Yǔchén}}; born July 30, 1990) is a Chinese-born crypto [[billionaire]] and businessman.<ref name="Forbes">{{Cite web|url=https://www.forbes.com/profile/justin-sun/|title=Justin Sun|website=Forbes}}</ref> He is the founder of [[Tron (cryptocurrency)|TRON]], a company that develops the TRON [[blockchain]] with the associated Tronix (TRX) [[cryptocurrency]] token, as well as USDD, a [[stablecoin]] issued by TRON DAO Reserve.<ref>{{Cite web|url=https://www.bloomberg.com/news/articles/2023-06-26/crypto-exchange-huobi-delists-tokens-using-sun-s-tron-stablecoin |title=Crypto Exchange Huobi Delists Tokens Using Justin Sun's Tron Stablecoin |first=David |last=Pan |date=June 26, 2023 |website=Bloomberg}}</ref><ref>{{Cite web |last1=Sandor |first1=Coindesk |url=https://fortune.com/crypto/2022/06/13/algorithmic-stablecoin-usdd-loses-peg-justin-sun-tron-decentralized-usd/ |title=Another algorithmic stablecoin loses its peg as Tron's USDD falls, with founder Justin Sun vowing to deploy $2 billion |website=Fortune |access-date=March 31, 2024 |archive-date=June 15, 2022 |archive-url=https://web.archive.org/web/20220615074016/https://fortune.com/2022/06/13/algorithmic-stablecoin-usdd-loses-peg-justin-sun-tron-decentralized-usd/ |url-status=live }}</ref> Sun is also the owner of [[Rainberry, Inc.|Rainberry]] (formerly BitTorrent Inc.), which developed the [[BitTorrent]] protocol and under Sun's leadership developed the BTT cryptocurrency token. Sun also owns the crypto currency exchanges Poloniex and [[HTX (cryptocurrency exchange)|HTX]] (formerly Huobi).<ref name=":2" /><ref name=":10">{{Cite web |title=Justin Sun |url=https://www.bloomberg.com/billionaires/profiles/h-e-justin-sun/ |access-date=28 August 2025 |website=Bloomberg Billionaires Index}}</ref> Sun was [[Permanent Representative]] of [[Grenada]] to the [[World Trade Organization]] (WTO) in Geneva from 2021 to 2023.
+
+According to ''[[Forbes]],'' Sun is the [[The World's Billionaires|411th-richest person in the world]], with a [[net worth]] estimated at $8.5 billion as of April 2026.<ref>{{Cite web |title=Justin Sun |url=https://www.forbes.com/profile/justin-sun/ |access-date=2026-04-26 |website=Forbes |language=en}}</ref> His net worth is largely held in cryptocurrency, including Tronix tokens (TRX).<ref name=":10" />
+
+Sun's companies have been investigated by the [[U.S. Securities and Exchange Commission]] (SEC). After having formed business ties with Donald Trump, who became president in 2025, Sun's companies received more lenient treatment by the SEC.<ref name=":11" /><ref name=":02" />

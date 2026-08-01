@@ -1,0 +1,1277 @@
+﻿
+Decrypt: AI, Bitcoin, Culture, Gaming, and Crypto News - Decrypt
+Coin Prices
+BTC
+$62,867.00
+-3.10%
+ETH
+$1,867.58
+-2.74%
+BNB
+$587.26
+-0.89%
+USDC
+$0.999812
+0.01%
+XRP
+$1.065
+-2.18%
+SOL
+$73.21
+-1.73%
+TRX
+$0.326304
+-0.72%
+FIGR_HELOC
+$1.039
+3.79%
+HYPE
+$53.44
+-2.56%
+DOGE
+$0.069667
+-1.22%
+USDS
+$0.999829
+0.01%
+LEO
+$9.77
+-0.06%
+RAIN
+$0.01273882
+-4.54%
+ZEC
+$459.81
+-2.86%
+XMR
+$358.48
+0.56%
+WBT
+$54.85
+-3.08%
+ADA
+$0.169781
+-0.77%
+LINK
+$8.15
+-3.68%
+XLM
+$0.172296
+-0.16%
+CC
+$0.115893
+-3.39%
+BCH
+$208.55
+-4.70%
+USD1
+$0.998794
+-0.01%
+USDE
+$0.999784
+-0.00%
+GRAM
+$1.39
+-2.02%
+LTC
+$44.79
+-1.10%
+USDG
+$1.001
+-0.00%
+USYC
+$1.13
+-0.14%
+HBAR
+$0.068038
+-0.21%
+SHIB
+$0.00000472
+2.31%
+AVAX
+$6.42
+-0.83%
+SUI
+$0.682735
+-2.68%
+PYUSD
+$0.999804
+0.01%
+BUIDL
+$1.00
+0.00%
+UNI
+$4.28
+-2.70%
+CRO
+$0.054333
+-1.30%
+XAUT
+$4,036.97
+-1.37%
+NEAR
+$1.70
+2.08%
+USDY
+$1.14
+-0.27%
+ONDO
+$0.398487
+-4.25%
+TAO
+$195.66
+1.26%
+OKB
+$85.77
+0.26%
+PAXG
+$4,041.63
+-1.35%
+WLFI
+$0.054873
+0.14%
+ASTER
+$0.599897
+-1.00%
+HTX
+$0.00000178
+-0.95%
+RLUSD
+$1.00
+-0.00%
+USDD
+$0.998871
+-0.01%
+M
+$1.15
+15.77%
+AAVE
+$96.99
+-3.03%
+USDF
+$0.995384
+0.03%
+SKY
+$0.056945
+0.41%
+BFUSD
+$0.998401
+0.03%
+BEAT
+$4.20
+10.80%
+DOT
+$0.762736
+-1.02%
+MNT
+$0.390696
+-1.51%
+MORPHO
+$1.95
+-2.38%
+PEPE
+$0.00000277
+-0.01%
+ICP
+$2.07
+-0.11%
+BGB
+$1.62
+-0.83%
+USDGO
+$0.999986
+0.01%
+U
+$0.999065
+-0.05%
+WLD
+$0.303631
+-0.85%
+ETC
+$6.63
+-2.14%
+BCAP
+$106.22
+0.00%
+EURSAFO
+$1.16
+0.05%
+EUTBL
+$1.22
+-0.00%
+KCS
+$6.58
+-1.60%
+PI
+$0.082182
+1.56%
+USTB
+$11.16
+0.01%
+QNT
+$60.29
+-0.24%
+JTRSY
+$1.11
+0.03%
+PUMP
+$0.00215515
+8.61%
+STABLE
+$0.03404376
+-1.73%
+JST
+$0.102813
+1.35%
+ENA
+$0.08137
+0.14%
+POL
+$0.070704
+-0.59%
+KAS
+$0.02723909
+-0.72%
+NEXO
+$0.715953
+-1.79%
+RENDER
+$1.37
+-3.57%
+ALGO
+$0.078715
+0.02%
+GT
+$6.52
+0.11%
+JAAA
+$1.043
+0.01%
+JUP
+$0.196825
+0.26%
+BDX
+$0.082622
+0.47%
+ATOM
+$1.24
+-3.75%
+GHO
+$0.99837
+-0.01%
+YLDS
+$0.999833
+0.01%
+币安人生
+$0.618369
+-3.28%
+FIL
+$0.721113
+1.48%
+VVV
+$11.81
+-2.67%
+USD0
+$0.999259
+-0.01%
+FLR
+$0.00630256
+0.50%
+LIT
+$2.12
+-5.47%
+XDC
+$0.02622384
+-1.57%
+USX
+$0.999511
+0.01%
+ARB
+$0.077062
+-1.30%
+TUSD
+$0.995289
+0.03%
+INJ
+$4.85
+0.85%
+A7A5
+$0.0121547
+1.08%
+APT
+$0.563373
+-2.03%
+CAKE
+$1.45
+-0.61%
+EURC
+$1.15
+0.03%
+HASH
+$0.00803958
+-3.30%
+VET
+$0.0047633
+-0.27%
+AERO
+$0.418532
+-3.11%
+ETHFI
+$0.407904
+2.38%
+UB
+$0.15412
+3.29%
+DASH
+$30.12
+-0.25%
+PENGU
+$0.00602077
+3.25%
+OUSG
+$116.06
+0.01%
+VIRTUAL
+$0.553139
+-3.32%
+TRUMP
+$1.44
+-1.25%
+USDTB
+$0.999752
+-0.01%
+FDUSD
+$0.996452
+-0.04%
+SUN
+$0.0178324
+-1.09%
+CRV
+$0.209477
+-0.76%
+FET
+$0.142778
+0.41%
+PYTH
+$0.03960075
+-3.41%
+KAU
+$130.11
+-0.34%
+TIA
+$0.320804
+-0.95%
+NIGHT
+$0.01811179
+0.24%
+SPX
+$0.32241
+-2.44%
+LDO
+$0.347446
+-7.38%
+APXUSD
+$0.886007
+0.73%
+ANTFUN
+$0.04392676
+-0.49%
+SEI
+$0.04200564
+-1.42%
+OHM
+$18.63
+0.10%
+GNO
+$104.39
+-2.98%
+LUNC
+$0.00004911
+-1.67%
+KAITO
+$1.11
+1.51%
+NFT
+$0.00000027
+1.21%
+JTO
+$0.524114
+3.88%
+ZRO
+$0.730577
+-4.76%
+STX
+$0.139091
+0.53%
+BTT
+$0.00000026
+-1.48%
+BSV
+$12.61
+1.56%
+MON
+$0.02102547
+-1.56%
+ONYC
+$1.13
+-0.28%
+PENDLE
+$1.43
+-0.27%
+BONK
+$0.00000279
+-2.71%
+REAL
+$0.073103
+-3.38%
+AUSD
+$0.999795
+0.01%
+DCR
+$13.31
+9.15%
+PEANUT
+$0.00073607
+0.00%
+BC
+$0.02251909
+-2.93%
+KITE
+$0.093076
+1.95%
+CFX
+$0.0424288
+3.58%
+XTZ
+$0.201383
+-2.06%
+FRAX
+$0.990011
+-0.05%
+JASMY
+$0.00431909
+-0.44%
+CRVUSD
+$0.999409
+0.03%
+KOGE
+$62.57
+-1.34%
+GRASS
+$0.315618
+1.00%
+KAG
+$54.67
+-6.42%
+XPL
+$0.075659
+0.44%
+BTW
+$0.091997
+11.45%
+PC0000031
+$1.00
+0.00%
+APEPE
+$0.00000095
+-1.07%
+2Z
+$0.05715
+2.53%
+OP
+$0.086218
+-2.40%
+FLOKI
+$0.00002029
+-0.51%
+VBILL
+$1.00
+0.00%
+FF
+$0.063974
+-1.93%
+COCO
+$0.186811
+0.25%
+SYRUP
+$0.160225
+-0.30%
+USAT
+$0.998652
+0.00%
+PIEVERSE
+$0.658604
+0.59%
+WFI
+$2.10
+-0.52%
+ULTIMA
+$2,128.05
+-0.24%
+ZBCN
+$0.00180404
+4.62%
+ENS
+$4.23
+-2.02%
+FGRS
+$24.98
+-3.87%
+STRK
+$0.02562816
+2.33%
+VELVET
+$0.406558
+-1.87%
+REUSD
+$1.092
+0.04%
+KAIA
+$0.02584122
+-4.26%
+TEL
+$0.00172175
+-0.96%
+RAY
+$0.60657
+-0.54%
+PC0000033
+$1.00
+0.00%
+APYUSD
+$1.25
+1.21%
+USTBL
+$1.091
+0.01%
+USDAI
+$1.00
+0.06%
+COMP
+$16.47
+-0.51%
+B
+$0.158419
+0.44%
+JW7
+$0.450086
+-41.40%
+SAFO
+$1.016
+0.03%
+TWT
+$0.374618
+3.96%
+EURCV
+$1.15
+-0.05%
+GRT
+$0.01431389
+-3.25%
+US
+$0.051636
+16.40%
+GUSD
+$0.998037
+-0.04%
+MX
+$1.62
+-0.58%
+TAG
+$0.00135253
+26.19%
+RUNE
+$0.432433
+-2.27%
+AXS
+$0.833799
+0.80%
+IOTA
+$0.03166157
+-2.55%
+WIF
+$0.144638
+0.94%
+STRCX
+$95.67
+0.61%
+BTSE
+$0.883972
+6.62%
+EARNETH
+$1,889.75
+-2.89%
+BORG
+$0.141307
+-1.34%
+XEC
+$0.00000682
+14.88%
+CHZ
+$0.01296938
+-0.14%
+VSN
+$0.03606936
+-5.06%
+EIGEN
+$0.181063
+0.03%
+PC0000097
+$1.00
+0.00%
+APE
+$0.133438
+-1.26%
+ZANO
+$8.58
+3.47%
+MANA
+$0.066796
+2.22%
+NEO
+$1.84
+1.81%
+EDGE
+$0.370392
+-8.95%
+AKT
+$0.440572
+-1.93%
+DEXE
+$2.68
+15.24%
+OZO
+$0.13045
+-0.08%
+THETA
+$0.12509
+0.45%
+SNX
+$0.21389
+3.42%
+GRX
+$13.04
+-0.00%
+CASH
+$0.999486
+0.01%
+H
+$0.061808
+-4.47%
+FARTCOIN
+$0.121239
+-0.93%
+XCN
+$0.00309312
+-5.40%
+TRAC
+$0.270155
+-2.57%
+MWC
+$10.88
+-3.09%
+AVUSD
+$0.999699
+-0.30%
+SHFL
+$0.280075
+-0.24%
+THBILL
+$1.018
+0.12%
+CVX
+$1.27
+-3.78%
+1INCH
+$0.082336
+-3.50%
+ACRED
+$1,103.58
+0.02%
+SOSO
+$0.336114
+0.97%
+GOMINING
+$0.28443
+-0.30%
+PC0000023
+$1.00
+0.00%
+ALFW
+$3.20
+0.00%
+AR
+$1.74
+0.84%
+DRV
+$0.11319
+19.60%
+SAND
+$0.04201592
+2.44%
+USDF
+$0.997438
+-0.04%
+ZAMA
+$0.050702
+-8.00%
+GENIUS
+$0.331518
+1.74%
+SFP
+$0.221484
+2.39%
+PC0000015
+$1.00
+0.00%
+FRXUSD
+$0.999517
+0.02%
+AWE
+$0.056292
+3.56%
+USDAT
+$0.999951
+0.03%
+PC0000085
+$1.00
+0.00%
+A
+$0.063724
+4.62%
+USDON
+$1.00
+0.00%
+RLB
+$0.064072
+1.43%
+Price data by
+Top News
+Business
+Tether Reports $1.5B Q2 Profit as USDT Supply Grows, Gold Holdings Rise
+Jul 31, 2026
+ ·
+2 min read
+Circle Lands New York Trust Charter as Stablecoin Issuer Expands Regulatory Footprint
+Jul 31, 2026
+ ·
+2 min read
+Business
+Circle Lands New York Trust Charter as Stablecoin Issuer Expands Regulatory Footprint
+Jul 31, 2026
+ ·
+2 min read
+Law and Order
+US Treasury Sanctions Iranian Firms Taking Bitcoin for Hormuz Passage
+Jul 31, 2026
+ ·
+3 min read
+Sponsored by XDC Network
+XDC AI and the Rise of Agentic Finance: When AI Agents Learn to Pay
+Jul 31, 2026
+ ·
+5 min read
+All News
+News Explorer
+Generated by AI, curated by humans
+Jul 29, 12:10 pm
+CFA Report Pegs US Crypto Fraud Losses at $80.7B
+Jul 22, 12:44 pm
+UK-Sanctioned HTX 'Rotating' Wallets, Says TRM Labs
+Jul 22, 11:10 am
+Cardano Wallet SecondFi to Shut Down After $2.4M Exploit
+Jul 21, 9:14 pm
+Senate Dems Unhappy With Trump Ethics Deal in Clarity Act: Report
+Jul 21, 9:11 pm
+Bitcoin Booster Jack Dorsey Debuts Buzz: A Decentralized Alternative to Slack
+Jul 21, 8:20 pm
+Telegram CEO Pavel Durov Promises 'Largest Rollout of a Non-Custodial Crypto Wallet in Human History'
+Jul 21, 6:14 pm
+White House Wants Dems to Accept 'Historic' Deal on Clarity Act Ethics Provision
+Jul 20, 10:34 pm
+White House Agrees Clarity Act Ethics Package: Report
+Jul 21, 9:34 am
+Former NY Governor Andrew Cuomo Joins OKX Board
+Jul 21, 9:05 am
+UK Lawmakers Launch Parliamentary Inquiry Into Crypto Banking Challenges
+Jul 20, 2:08 pm
+Exodus to Slash Workforce By 25% in Stablecoin Payments Push
+Jul 20, 1:47 pm
+Allbridge Pauses Protocol After $1.65M Flash Loan Attack
+Jul 20, 1:01 pm
+Bitmine Scales Back ETH Purchases to $14M, Buys Back $86M in Stock
+Jul 20, 12:39 pm
+Strategy Extends Bitcoin Buying Pause, Boosts Cash Reserve to $3.2B
+Jul 20, 11:12 am
+Strategy Chair Saylor Calls Bitcoin's BIP-110 'Bad Idea' in 110-Point Essay
+News Explorer
+Discover
+Listen, watch, learn, play, and engage with our verticals for loyalists
+Myriad Markets
+Trade opinions on crypto, politics, gaming, culture and technology
+Predict Now
+Industry Announcements
+The latest Press Releases by
+
+Chainwire
+Flowra and Honeypot Partner to Bring Sanctions Screening Directly to Solana Block Building
+Jul 30, 2026
+ ·
+2 min read
+CoolWallet Integrates ChangeNOW as Its In-App Swap Provider
+Jul 30, 2026
+ ·
+3 min read
+Canton’s Decentralized App Layer Launches, Backed by $1M+ Foundation Grant
+Jul 28, 2026
+ ·
+5 min read
+All Press Releases
+Bitcoin
+ Live Price
+btc
+ · USD · Spot
+$
+62,867
+$
+2,014
+ (
+-
+3.1
+%)
+24H
+24h High
+$65,164
+24h Low
+$62,473
+24h Vol
+—
+24H
+7D
+1M
+1Y
+YTD
+MAX
+NEXT BTC All-time high
+Not in 2026
+95
+% chance
+
+according to Myriad
+Have your say:
+Agree
+Disagree
+End of today
+$62,000 to $64,000
+82
+% chance according to Myriad
+Above 60,000
+100%
+Yes
+No
+Above 62,000
+92%
+Yes
+No
+Above 64,000
+10%
+Yes
+No
+Above 66,000
+1%
+Yes
+No
+Above 68,000
+1%
+Yes
+No
+View full market on Myriad ↗
+End of the week
+$62,000 to $64,000
+82
+% chance according to Myriad
+Above 60,000
+100%
+Yes
+No
+Above 62,000
+92%
+Yes
+No
+Above 64,000
+10%
+Yes
+No
+Above 66,000
+1%
+Yes
+No
+Above 68,000
+1%
+Yes
+No
+View full market on Myriad ↗
+End of the month
+$62,000 to $64,000
+82
+% chance according to Myriad
+Above 60,000
+100%
+Yes
+No
+Above 62,000
+92%
+Yes
+No
+Above 64,000
+10%
+Yes
+No
+Above 66,000
+1%
+Yes
+No
+Above 68,000
+1%
+Yes
+No
+View full market on Myriad ↗
+Best entry price in July
+$57,500
+2
+% chance according to Myriad
+57,500
+2%
+Yes
+No
+55,000
+1%
+Yes
+No
+52,500
+1%
+Yes
+No
+50,000
+1%
+Yes
+No
+60,000
+1%
+Yes
+No
+47,500
+1%
+Yes
+No
+View full market on Myriad ↗
+Best exit price in July
+$72,500
+1
+% chance according to Myriad
+67,500
+1%
+Yes
+No
+70,000
+1%
+Yes
+No
+72,500
+1%
+Yes
+No
+75,000
+1%
+Yes
+No
+77,500
+1%
+Yes
+No
+80,000
+1%
+Yes
+No
+82,500
+1%
+Yes
+No
+View full market on Myriad ↗
+More Bitcoin news and projections
+Learn
+Get schooled on the technical ideas behind Web3
+What is Zcash (ZEC)? The Privacy Coin Using Zero-Knowledge Proofs
+Zcash is a privacy-focused cryptocurrency that enables users to hide key details of transactions by leveraging zk-SNARKs.
+What Is Robinhood Chain? The Ethereum Layer-2 Network for Tokenized Stocks
+Robinhood Chain is an Ethereum layer-2 network built with Arbitrum technology for tokenized assets, crypto apps, and on-chain financial products.
+What Is Q-Day? The Quantum Threat to Bitcoin Explained
+Experts warn quantum computers could someday forge Bitcoin’s digital signatures, allowing unauthorized transactions.
+What Is Strategy (MSTR)? The Bitcoin Treasury Company
+Software firm Strategy (formerly MicroStrategy) and its co-founder Michael Saylor have become synonymous with Bitcoin. Here’s what you need to know.
+What Is Hyperliquid? The Decentralized Exchange With Its Own Blockchain
+Hyperliquid’s decentralized exchange has rapidly grown to become one of the biggest projects in crypto. Here’s how it works.
+What Is BChat? The Decentralized Messaging App Built for Privacy
+Built on the Beldex Network, BChat aims to solve the weaknesses of relying solely on end-to-end encryption (E2EE) for private messaging.
+All Learn
+Videos
+Watch candid conversations, live event coverage, and on-the-street reporting.
+Macro Markets, Memory vs Crypto, & WTF Is Stonkbroker - Special Guests: OSF & SimpleFarmer
+Jul 31, 2026
+ ·
+1h 1m 36s
+Now Playing!
+Macro Markets, Memory vs Crypto, & WTF Is Stonkbroker - Special Guests: OSF & SimpleFarmer
+Jul 31, 2026
+ ·
+1h 1m 36s
+Robinhood Smashes Earnings, MoonPay's surprise airdrop + Pons v2 with @MEADGod
+Jul 31, 2026
+ ·
+52m 21s
+Crypto Green Ahead of FOMC, ZEC Activates Ironwood Upgrade, PIPEDOG Explodes From Nowhere to $40m+
+Jul 30, 2026
+ ·
+54m 27s
+Crypto Falls Ahead of FOMC, FOMO App Hits All Time Highs, FWA Interview with Rhynotic
+Jul 29, 2026
+ ·
+1h 3m 32s
+Crypto Momentum Builds, FWA’s Big Weekend, EPIK Pumps Big, and ZCash Ironwood with Mert
+Jul 28, 2026
+ ·
+1h 3m 33s
+Vlad Tenev’s X Hacked to Post Memecoin, BTC's New $15m Quantum Defense Fund, Clarity Act Stalls
+Jul 25, 2026
+ ·
+49m 59s
+Wall Street Moving Onchain Will Drive the Next Bull, BTC ETFs Strong, FWA Gacha & Token Running Hot
+Jul 24, 2026
+ ·
+52m 16s
+OpenAI Model Escapes Containment, BTC ETFs Stay Green, Robinhood Chain Turns Red
+Jul 23, 2026
+ ·
+48m 25s
+Clarity Act Odds Surge, Crypto Rallies, Robinhood Chain Surges
+Jul 22, 2026
+ ·
+49m 55s
+Now Playing!
+Macro Markets, Memory vs Crypto, & WTF Is Stonkbroker - Special Guests: OSF & SimpleFarmer
+Jul 31, 2026
+ ·
+1h 1m 36s
+Robinhood Smashes Earnings, MoonPay's surprise airdrop + Pons v2 with @MEADGod
+Jul 31, 2026
+ ·
+52m 21s
+Crypto Green Ahead of FOMC, ZEC Activates Ironwood Upgrade, PIPEDOG Explodes From Nowhere to $40m+
+Jul 30, 2026
+ ·
+54m 27s
+Crypto Falls Ahead of FOMC, FOMO App Hits All Time Highs, FWA Interview with Rhynotic
+Jul 29, 2026
+ ·
+1h 3m 32s
+Crypto Momentum Builds, FWA’s Big Weekend, EPIK Pumps Big, and ZCash Ironwood with Mert
+Jul 28, 2026
+ ·
+1h 3m 33s
+Vlad Tenev’s X Hacked to Post Memecoin, BTC's New $15m Quantum Defense Fund, Clarity Act Stalls
+Jul 25, 2026
+ ·
+49m 59s
+Wall Street Moving Onchain Will Drive the Next Bull, BTC ETFs Strong, FWA Gacha & Token Running Hot
+Jul 24, 2026
+ ·
+52m 16s
+OpenAI Model Escapes Containment, BTC ETFs Stay Green, Robinhood Chain Turns Red
+Jul 23, 2026
+ ·
+48m 25s
+Clarity Act Odds Surge, Crypto Rallies, Robinhood Chain Surges
+Jul 22, 2026
+ ·
+49m 55s
+Now Playing!
+Macro Markets, Memory vs Crypto, & WTF Is Stonkbroker - Special Guests: OSF & SimpleFarmer
+Jul 31, 2026
+ ·
+1h 1m 36s
+Robinhood Smashes Earnings, MoonPay's surprise airdrop + Pons v2 with @MEADGod
+Jul 31, 2026
+ ·
+52m 21s
+Crypto Green Ahead of FOMC, ZEC Activates Ironwood Upgrade, PIPEDOG Explodes From Nowhere to $40m+
+Jul 30, 2026
+ ·
+54m 27s
+Crypto Falls Ahead of FOMC, FOMO App Hits All Time Highs, FWA Interview with Rhynotic
+Jul 29, 2026
+ ·
+1h 3m 32s
+Crypto Momentum Builds, FWA’s Big Weekend, EPIK Pumps Big, and ZCash Ironwood with Mert
+Jul 28, 2026
+ ·
+1h 3m 33s
+Vlad Tenev’s X Hacked to Post Memecoin, BTC's New $15m Quantum Defense Fund, Clarity Act Stalls
+Jul 25, 2026
+ ·
+49m 59s
+Wall Street Moving Onchain Will Drive the Next Bull, BTC ETFs Strong, FWA Gacha & Token Running Hot
+Jul 24, 2026
+ ·
+52m 16s
+OpenAI Model Escapes Containment, BTC ETFs Stay Green, Robinhood Chain Turns Red
+Jul 23, 2026
+ ·
+48m 25s
+Clarity Act Odds Surge, Crypto Rallies, Robinhood Chain Surges
+Jul 22, 2026
+ ·
+49m 55s
+All Videos
+Deep Dives
+Features and insights on the biggest trends in Web3
+Long Reads
+Artificial Intelligence
+The Future Cyberpunk Imagined Is Here: How Much Did It Get Right?
+For decades, the sci-fi subgenre known as cyberpunk imagined a future of chrome-plated mercenaries, cyberspace cowboys, and hackers battling globe-spanning corporations. Four decades later, much of that future has arrived—just not in the way its creators expected.
+Brain-computer interfaces like Neuralink, AI-powered smart glasses, and increasingly sophisticated robotic prosthetics have begun bringing science fiction's chrome-plated future into the real world. At the same time, a handful of techn...
+Jun 28, 2026
+ ·
+6 min read
+Long Reads
+The 5 Largest Publicly Traded Solana Treasury Firms
+Jun 19, 2026
+ ·
+6 min read
+Long Reads
+Pokémon Card Sales Are Surging on Crypto Platforms—Just Don't Call It Gambling
+Jun 14, 2026
+ ·
+5 min read
+POL
+Long Reads
+Meet the Guys Still Clinging To the Terra Luna That Do Kwon Abandoned
+Jun 6, 2026
+ ·
+5 min read
+Long Reads
+How President Trump’s Immigration Order Will Feed the Stablecoin Economy, Bitcoin ATMs
+May 31, 2026
+ ·
+6 min read
+Long Reads
+Crypto Is Growing Up—Why Some Everyday Traders Are Moving On
+May 22, 2026
+ ·
+4 min read
+Long Reads
+Why DeFi Keeps Losing Millions to Exploits
+May 21, 2026
+ ·
+7 min read
+
+All Deep Dives
+Collections
+Columns, roundups, and other coverage of ongoing trends we’re covering
+Artificial Intelligence
+The latest artificial intelligence news, in-depth features, explainers, and analysis, spanning from generative to transformational technology and beyond.
+1819
+ pieces
+Morning Minute
+The Morning Minute spans crypto and NFT news and market analysis, written by Tyler Warner, an ex-banking consultant turned high-volume NFT trader, Pudgy Penguin maxi, and NFT market analyst at Lucky Trader.
+224
+ pieces
+NFT Revolution
+NFTs are provably unique crypto tokens that are quickly becoming increasingly popular among digital artists, gaming companies, and investors. Track the NFT revolution here.
+1968
+ pieces
+The Trial of Sam Bankman-Fried
+FTX founder and former CEO Sam Bankman-Fried faces seven criminal charges related to the collapse of the once-dominant exchange. Here's the latest on his trial.
+48
+ pieces
+All Collections
+More News
+More insights into recent blockchain news
+Artificial Intelligence
+Artificial Intelligence
+AI Company Sues Town for Trying to Block Data Center Near National Park
+The developer behind a proposed $4.8 billion AI data center near Mammoth Cave National Park is suing a Kentucky city after officials moved to halt the project, escalating a growing conflict between local governments and companies racing to build AI infrastructure.
+According to a report by The Lexington Herald-Leader, Kentucky Industrial Alliance has filed two lawsuits against Cave City after officials approved a one-year moratorium on new data centers just days after the company submitted plans...
+Jul 31, 2026
+ ·
+3 min read
+Artificial Intelligence
+Claude Hacked Three Companies in Internal Testing: Anthropic
+Jul 31, 2026
+ ·
+3 min read
+Artificial Intelligence
+Opinion
+Morning Minute: Coinbase Posts Surprise Loss as Crypto Trading Dries Up
+Jul 31, 2026
+ ·
+5 min read
+Morning Minute
+Law and Order
+Crypto Kiosk Scams Cost Texans $57M as Lawmakers Weigh a Ban
+Jul 31, 2026
+ ·
+3 min read
+Law and Order
+New York AG Seeks $36B From Kalshi Over 'Illegal Gambling'
+Jul 31, 2026
+ ·
+3 min read
+Technology
+$38M in Bitcoin Drained by Coldcard Key Flaw Its Maker Thinks AI Found
+Jul 31, 2026
+ ·
+3 min read
+Business
+Coinbase Misses on Q2 Earnings as Crypto Trading Activity Slows
+Jul 30, 2026
+ ·
+3 min read
+News by Category
+Editors' Picks
+Business
+Coins
+DeFi
+Markets
+Technology
+NFTs
+Gaming
+Artificial Intelligence
+Space
+Health
+Law and Order
+All News
+Your gateway into the world of Web3
+Partner
+News
+Deep Dives
+University
+Coins
+Videos
+News Explorer
+About
+Team
+Disclosures
+Manifesto
+Terms of Service
+Code of Conduct
+Privacy Policy
+Contact
+Careers
+Jobs
+SUBSCRIBE TO OUR NEWSLETTER
+The latest news, articles, and resources, sent to your inbox weekly.
+Subscribe
+© A next-generation media company.
+2026
+ Decrypt Media, Inc.
+

@@ -1,0 +1,867 @@
+﻿
+
+java-tron
+
+          Skip to content
+
+            java-tron
+
+              Home
+
+            Initializing search
+
+    tronprotocol/documentation-en
+
+    java-tron
+
+    tronprotocol/documentation-en
+
+    Home
+
+    Home
+
+      Table of contents
+
+      Choose your entry point
+
+      Browse by topic
+
+      Other resources
+
+      Documentation source of truth
+
+    Getting Started With java-tron
+
+            Getting Started With java-tron
+
+    Getting Started
+
+    Using java-tron
+
+            Using java-tron
+
+    Deploying
+
+    Node Configuration
+
+    Backup and Restore
+
+    Lite FullNode
+
+    Private Network
+
+    Event Subscription
+
+    Database Configuration
+
+    Network Connection
+
+    Node Monitoring
+
+    Node Maintenance Tool
+
+    API
+
+            API
+
+    HTTP API
+
+            HTTP API
+
+    Account
+
+            Account
+
+    Query an account by address
+
+    Query an account's balance at a specific block
+
+    Query an account's bandwidth resources
+
+    Query bandwidth + energy + TronPower
+
+    Create an on-chain account
+
+    Update an account's name
+
+    Configure multi-sig permissions
+
+    Validate an address
+
+    Block / transaction query
+
+            Block / transaction query
+
+    Latest block
+
+    Generic block query
+
+    Block by height
+
+    Block by hash
+
+    Blocks in a range
+
+    The most recent N blocks
+
+    Per-account balance changes within a block
+
+    Transaction count in a block
+
+    Transaction by txid
+
+    Transaction receipt by txid
+
+    Transaction receipts by block
+
+    Pending pool size
+
+    Single pending transaction
+
+    All pending transaction IDs
+
+    Transaction build / broadcast
+
+            Transaction build / broadcast
+
+    Build a TRX transfer transaction
+
+    Current multi-sig weight
+
+    Addresses that have already signed
+
+    Broadcast a signed transaction (JSON)
+
+    Broadcast a signed transaction (hex)
+
+    TRC10 asset
+
+            TRC10 asset
+
+    Issue a TRC10 token
+
+    Update a TRC10 description
+
+    Transfer TRC10
+
+    Participate in a TRC10 fundraising
+
+    Unfreeze TRC10 frozen by the issuer
+
+    Look up a TRC10 by id
+
+    Look up a TRC10 by name
+
+    All TRC10s with a given name
+
+    TRC10s issued by an account
+
+    All TRC10s on the network
+
+    Paginated TRC10 list
+
+    Smart contract
+
+            Smart contract
+
+    Deploy a contract
+
+    Trigger a contract (write)
+
+    Read-only contract call
+
+    Estimate energy usage of a call
+
+    Contract metadata
+
+    Full contract runtime info
+
+    Clear a contract's ABI
+
+    Change the user-energy percentage
+
+    Change the deployer's energy limit
+
+    Witness / governance
+
+            Witness / governance
+
+    Apply to become an SR candidate
+
+    Update an SR's URL
+
+    All SR candidates
+
+    Paginated SR list
+
+    Vote for SRs
+
+    An SR's current brokerage rate
+
+    Update an SR's brokerage
+
+    Claimable rewards for an account
+
+    Withdraw block production rewards / dividends
+
+    Create a chain-parameter proposal
+
+    Vote on a proposal as an SR
+
+    Withdraw your own proposal
+
+    List of proposals
+
+    Proposal by ID
+
+    Paginated proposal list
+
+    Current chain parameters
+
+    Next maintenance period time
+
+    Stake 1.0 (unfreeze and query only)
+
+            Stake 1.0 (unfreeze and query only)
+
+    Freeze TRX for resources (V1)
+
+    Unfreeze matured resources (V1)
+
+    Query delegation records (V1)
+
+    Query delegation counterparty addresses (V1)
+
+    Stake 2.0
+
+            Stake 2.0
+
+    Freeze TRX for resources
+
+    Initiate unfreeze
+
+    Withdraw matured unfreezes
+
+    Cancel all unmatured unfreezes
+
+    Delegate resources to another account
+
+    Undelegate resources from another account
+
+    Query delegation records
+
+    Query delegation counterparty addresses
+
+    Current maximum delegatable amount
+
+    Remaining unfreeze count
+
+    Withdrawable unfreeze amount at a given time
+
+    Node / pricing / tools
+
+            Node / pricing / tools
+
+    Node status
+
+    Known peers
+
+    Historical energy unit prices
+
+    Historical bandwidth unit prices
+
+    Cumulative burned TRX
+
+    gRPC API
+
+            gRPC API
+
+    Account
+
+            Account
+
+    Query an account by address
+
+    Query an account's balance at a specific block
+
+    Query an account's bandwidth resources
+
+    Query bandwidth + energy + TronPower
+
+    Create an on-chain account
+
+    Update an account's name
+
+    Configure multi-sig permissions
+
+    Block / transaction query
+
+            Block / transaction query
+
+    Latest block
+
+    Generic block query
+
+    Block by height
+
+    Block by hash
+
+    Blocks in a range
+
+    The most recent N blocks
+
+    Per-account balance changes within a block
+
+    Transaction count in a block
+
+    Transaction by txid
+
+    Transaction receipt by txid
+
+    Transaction receipts by block
+
+    Pending pool size
+
+    Single pending transaction
+
+    All pending transaction IDs
+
+    Transaction build / broadcast
+
+            Transaction build / broadcast
+
+    Build a TRX transfer transaction
+
+    Current multi-sig weight
+
+    Addresses that have already signed
+
+    Broadcast a signed transaction
+
+    TRC10 asset
+
+            TRC10 asset
+
+    Issue a TRC10 token
+
+    Update a TRC10 description
+
+    Transfer TRC10
+
+    Participate in a TRC10 fundraising
+
+    Unfreeze TRC10 frozen by the issuer
+
+    Look up a TRC10 by id
+
+    Look up a TRC10 by name
+
+    All TRC10s with a given name
+
+    TRC10s issued by an account
+
+    All TRC10s on the network
+
+    Paginated TRC10 list
+
+    Smart contract
+
+            Smart contract
+
+    Deploy a contract
+
+    Trigger a contract (write)
+
+    Read-only contract call
+
+    Estimate energy usage of a call
+
+    Contract metadata
+
+    Full contract runtime info
+
+    Clear a contract's ABI
+
+    Change the user-energy percentage
+
+    Change the deployer's energy limit
+
+    Witness / governance
+
+            Witness / governance
+
+    Apply to become an SR candidate
+
+    Update an SR's URL
+
+    All SR candidates
+
+    Paginated SR list
+
+    Vote for SRs
+
+    An SR's current brokerage rate
+
+    Update an SR's brokerage
+
+    Claimable rewards for an account
+
+    Withdraw block production rewards / dividends
+
+    Create a chain-parameter proposal
+
+    Vote on a proposal as an SR
+
+    Withdraw your own proposal
+
+    List of proposals
+
+    Proposal by ID
+
+    Paginated proposal list
+
+    Current chain parameters
+
+    Next maintenance period time
+
+    Stake 1.0 (unfreeze and query only)
+
+            Stake 1.0 (unfreeze and query only)
+
+    Freeze TRX for resources (V1)
+
+    Unfreeze matured resources (V1)
+
+    Query delegation records (V1)
+
+    Query delegation counterparty addresses (V1)
+
+    Stake 2.0
+
+            Stake 2.0
+
+    Freeze TRX for resources
+
+    Initiate unfreeze
+
+    Withdraw matured unfreezes
+
+    Cancel all unmatured unfreezes
+
+    Delegate resources to another account
+
+    Undelegate resources from another account
+
+    Query delegation records
+
+    Query delegation counterparty addresses
+
+    Current maximum delegatable amount
+
+    Remaining unfreeze count
+
+    Withdrawable unfreeze amount at a given time
+
+    Node / pricing / tools
+
+            Node / pricing / tools
+
+    Node status
+
+    Known peers
+
+    Historical energy unit prices
+
+    Historical bandwidth unit prices
+
+    Cumulative burned TRX
+
+    jsonRPC API
+
+            jsonRPC API
+
+    Node info / chain identity
+
+            Node info / chain identity
+
+    Client version string
+
+    Keccak-256 hash
+
+    Network ID
+
+    Whether listening on P2P
+
+    Number of peers
+
+    Chain ID
+
+    Protocol version
+
+    Sync status
+
+    Latest block height
+
+    Current energy unit price
+
+    Block / transaction query
+
+            Block / transaction query
+
+    Query a block by hash
+
+    Query a block by height / tag
+
+    Block transaction count (by hash)
+
+    Block transaction count (by height)
+
+    Query a transaction by txid
+
+    Query a transaction by block hash + index
+
+    Query a transaction by block height + index
+
+    Query a receipt by txid
+
+    Receipt list for an entire block
+
+    Account state
+
+            Account state
+
+    Account TRX balance
+
+    Contract storage slot
+
+    Contract runtime bytecode
+
+    Smart contract calls
+
+            Smart contract calls
+
+    Read-only contract call
+
+    Estimate energy consumption
+
+    Logs / filters
+
+            Logs / filters
+
+    One-shot log query
+
+    Register a log filter
+
+    Register a new-block filter
+
+    Uninstall a filter
+
+    Pull and drain filter increments
+
+    Pull a log filter's full set
+
+    Transaction build
+
+            Transaction build
+
+    Build an unsigned transaction
+
+    Compatibility stub methods
+
+            Compatibility stub methods
+
+    etherbase address
+
+    Node-managed accounts list
+
+    Mining work info
+
+    Machine-readable definitions
+
+    Core Protocol
+
+            Core Protocol
+
+    DPoS
+
+    Super Representative
+
+    Account Model
+
+    Resource Model
+
+    Smart Contract
+
+    System Contract
+
+    Account Permission Management
+
+    For java-tron Developers
+
+            For java-tron Developers
+
+    Developer Guide
+
+    Core Modules
+
+    ChainBase Deep Dive
+
+    P2P Network Deep Dive
+
+    TIPs Workflow
+
+    TIPs
+
+    Issue Workflow
+
+    Governance Workflow
+
+    Configure the IDE
+
+    Development Example
+
+    For Dapp Developers
+
+            For Dapp Developers
+
+    Tools
+
+    Clients
+
+            Clients
+
+    wallet-cli
+
+            wallet-cli
+
+    Wallet Management
+
+    Accounts
+
+    Staking & Resources
+
+    Transactions
+
+    Smart Contracts
+
+    TRC-10 Assets
+
+    Governance
+
+    GasFree
+
+    Queries
+
+    TypeScript / npm CLI
+
+    Releases
+
+            Releases
+
+    Deployment Manual for the New Version
+
+    Integrity Check
+
+    History
+
+            History
+
+    v4.8.2 (Pyrrho)
+
+    v4.8.1 (Democritus)
+
+    v4.8.0.1 (Seneca)
+
+    v4.8.0 (Kant)
+
+    v4.7.7 (Epicurus)
+
+    v4.7.6 (Anaximander)
+
+    v4.7.5 (Cleobulus)
+
+    v4.7.4 (Bias)
+
+    v4.7.3.1 (Solon)
+
+    v4.7.3 (Chilon)
+
+    v4.7.2 (Periander)
+
+    v4.7.1.1 (Pittacus)
+
+    v4.7.1 (Sartre)
+
+    v4.7.0.1 (Aristotle)
+
+    v4.6.0 (Socrates)
+
+    v4.5.2 (Aurelius)
+
+    v4.5.1 (Tertullian)
+
+    v4.4.6 (David)
+
+    v4.4.5 (Cicero)
+
+    v4.4.4 (Plotinus)
+
+    v4.4.2 (Augustinus)
+
+    v4.4.0 (Rousseau)
+
+    v4.3.0 (Bacon)
+
+    v4.2.2.1 (Epictetus)
+
+    v4.2.2 (Lucretius)
+
+    v4.2.0 (Plato)
+
+    v4.1.3 (Thales)
+
+    v4.1.2
+
+    v4.1.1
+
+    v4.0.0
+
+    Odyssey-v3.7
+
+    Odyssey-v3.6.5
+
+    Appendix
+
+            Appendix
+
+    Glossary
+
+      Table of contents
+
+      Choose your entry point
+
+      Browse by topic
+
+      Other resources
+
+      Documentation source of truth
+
+java-tron Documentation
+¶
+
+java-tron is the official Java implementation of the TRON network client, developed and maintained by the TRON protocol team and fully open source. It implements the complete TRON mainnet protocol, including DPoS consensus, the TVM, the account and resource models, smart contracts, the decentralized exchange, and multi-signature permission management — the foundational software for running full nodes, participating in Super Representative elections, deploying contracts, and building DApps.
+
+This documentation is written for java-tron node operators, protocol researchers, DApp developers, and core contributors. It covers the full path from node deployment, network connectivity, and API usage to protocol mechanics and source contribution. Source and releases:
+github.com/tronprotocol/java-tron
+.
+
+Choose your entry point
+¶
+
+Getting Started
+
+First time with java-tron or the TRON protocol? Start here.
+
+Getting Started Guide
+
+TRON Consensus (DPoS)
+
+Glossary
+
+Run a Node
+
+Operations guide for deploying, monitoring, and maintaining java-tron nodes.
+
+Deploy java-tron
+
+Node Configuration
+
+Node Monitoring
+
+Upgrade to a New Version
+
+Private Network
+
+DApp Development
+
+Build applications against the HTTP, gRPC, and JSON-RPC interfaces exposed by java-tron.
+
+HTTP API
+
+JSON-RPC API
+
+gRPC API
+
+Smart Contracts
+
+wallet-cli
+
+Contribute to Core
+
+Modify java-tron source, submit TIPs, and participate in protocol evolution.
+
+Developer Guide
+
+TIPs Workflow
+
+Configure the IDE
+
+Core Modules
+
+Browse by topic
+¶
+
+Using java-tron
+ — Deployment, backup and restore, lite node, private network, event subscription, database configuration, node monitoring, maintenance tooling
+
+API
+ — HTTP, gRPC, JSON-RPC
+
+Core Protocol
+ — DPoS consensus, Super Representatives, account model, resource model, smart contracts, system contracts, decentralized exchange, account permission management
+
+For java-tron Developers
+ — Developer guide, TIPs workflow, issue workflow, governance workflow, IDE configuration, development examples, core modules
+
+For DApp Developers
+ — Development tooling
+
+Clients
+ — wallet-cli
+
+Releases
+ — Deployment manual for new versions, integrity check, release history
+
+Appendix
+ — Glossary
+
+Other resources
+¶
+
+TRON Whitepaper
+ — Official document on TRON's protocol design and vision
+
+TRON Improvement Proposals (TIPs)
+ — Repository for submitting, discussing, and archiving protocol evolution proposals
+
+TRON Developer Hub
+ — DApp developer documentation, SDKs, and tutorials
+
+TRON Official Site
+ — Project updates, ecosystem partners, and community entry points
+
+Documentation source of truth
+¶
+
+This English repository (
+documentation-en
+) is the authoritative source for java-tron documentation. The Chinese documentation (
+documentation-zh
+) is a translation that follows it. When the two diverge, the English version takes precedence; content changes should be made against the English source first and then propagated to the translation.
+
+July 30, 2026
+
+                Next
+
+                Getting Started
+
