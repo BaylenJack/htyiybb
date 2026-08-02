@@ -434,8 +434,8 @@
        * 由 measureDownload / measureUpload 各自提供 state、常量与 UI 元素，共享同一骨架。
        * @param {object} deps 依赖注入
        * @param {{t0: number|null, bytes: number}} deps.state 共享累计字节；t0 由阶段在首字节发出时置位
-       * @param {{periodMs: number, capacityBytes: number}} deps.constants 阶段常量
-       *   periodMs：目标时长；capacityBytes：进度 100% 对应的总字节量（测满即提前结束）
+       * @param {{capacityBytes: number}} deps.constants 阶段常量
+       *   capacityBytes：进度 100% 对应的总字节量（测满即提前结束）
        * @param {{ringValue: Element, ringSub: Element, ringProgress: Element, metricValue: Element}} deps.elements
        *   环内大数字 / 环下小字 / 进度圆环 / 对应指标卡数值
        * @param {string} deps.phaseLabel 阶段文案，如「下载测速中…」
@@ -479,7 +479,10 @@
             if (instWindowMs > 0) {
               // 窗口速率：批次落地才更新；窗口未满时沿用上次值
               if (winTime === null || now - winTime >= instWindowMs) {
-                const winSec = winTime === null ? instWindowMs / 1000 : Math.max(now - winTime, 1) / 1000;
+                // 首帧分母用 t0 起的实际已过时间（否则首帧会按满窗口时长
+                // 估算速率，显示 ~40Mbps 量级的伪值）
+                const winSec =
+                  (winTime === null ? Math.max(now - state.t0, 1) : Math.max(now - winTime, 1)) / 1000;
                 winRate = ((state.bytes - winBytes) * 8) / 1e6 / winSec;
                 winBytes = state.bytes;
                 winTime = now;
@@ -526,12 +529,17 @@
           clearInterval(samplerId);
         }
 
-        /** 收尾：指标卡写最终值，环内文字与圆环恢复默认 */
-        function finish(finalMbps) {
-          elements.metricValue.textContent = finalMbps.toFixed(1);
+        /** 环恢复默认：finish 与失败路径共用（文字「开始/点击测速」+ 圆环复位） */
+        function restoreRing() {
           elements.ringValue.textContent = '开始';
           elements.ringSub.textContent = '点击测速';
           elements.ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+        }
+
+        /** 收尾：指标卡写最终值，环内文字与圆环恢复默认 */
+        function finish(finalMbps) {
+          elements.metricValue.textContent = finalMbps.toFixed(1);
+          restoreRing();
           if (onProgress) onProgress({ mbps: finalMbps, progress: 1 });
         }
 
@@ -554,7 +562,7 @@
           return 0;
         }
 
-        return { renderLoop, updateDisplay, finish, resetUi, dispose, stableMbps };
+        return { renderLoop, updateDisplay, finish, restoreRing, resetUi, dispose, stableMbps };
       }
 
       /* ========== 下载测速 ========== */
@@ -589,7 +597,6 @@
         const prevDownloadText = downloadValue.textContent; // 失败时恢复卡片（阶段开始前的有效值）
         // 进度分母需在阶段内随失败连接数折算（见 runConnection catch），故持对象引用
         const constants = {
-          periodMs: DOWNLOAD_DURATION_MS,
           capacityBytes: DOWNLOAD_CONCURRENCY * DOWNLOAD_BYTES_PER_CONNECTION,
         };
         const meter = createRateMeter({
@@ -656,8 +663,7 @@
 
         // 全部连接失败，或总传输 0 字节（HTTP 200 但空/极小响应体）→ 没有有效数据，整体判失败
         if (failures.length === DOWNLOAD_CONCURRENCY || state.bytes === 0) {
-          resetRingText(); // 环内恢复默认
-          document.getElementById('ring-progress').style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          meter.restoreRing(); // 环恢复默认
           downloadValue.textContent = prevDownloadText; // 卡片恢复上次的有效值
           throw new Error(
             failures.length
@@ -727,8 +733,9 @@
        *   最终上传速度（Mbps）、总传输字节、测速时长（ms）、失败连接数（0~2）
        */
       async function measureUpload(onProgress) {
-        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，lastByteAt = 最后一个字节发出时刻
-        const state = { t0: null, bytes: 0, lastByteAt: null };
+        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，lastByteAt = 最后一个字节发出时刻，
+        // bytesAtT0 = t0 时刻的累计字节——速率分子的基线（见最终值计算）
+        const state = { t0: null, bytes: 0, bytesAtT0: 0, lastByteAt: null };
         const failures = []; // 逐连接失败记录：单个失败只跳过该连接，不中止整体
 
         /** 每连接 5MB 随机载荷（Uint8Array + Blob）：重试时复用同一 payload，省去重复生成 */
@@ -739,7 +746,6 @@
         const prevUploadText = uploadValue.textContent; // 失败时恢复卡片（阶段开始前的有效值）
         // 进度分母需在阶段内随失败连接数折算（见 runConnection catch），故持对象引用
         const constants = {
-          periodMs: UPLOAD_DURATION_MS,
           capacityBytes: UPLOAD_CONCURRENCY * UPLOAD_BYTES_PER_CONNECTION,
         };
         const meter = createRateMeter({
@@ -777,13 +783,18 @@
               // 计时起点：首批 body 提交完成时刻（response 落地即代表请求体已全部发出）——
               // 浏览器 fetch 不暴露 body 开始传输的时刻，响应返回是唯一可靠的
               // 「该批 body 已全部送达」信号；连接建立延迟对上传影响远小于下载，可忽略
-              if (state.t0 === null) state.t0 = now;
+              if (state.t0 === null) {
+                state.t0 = now;
+                // 分子基线：仅 t0 之后送出的字节计入速率（见最终值计算的注释）
+                state.bytesAtT0 = state.bytes;
+              }
               // 时长到即停（各连接自检同一时钟，约同时停止）
               if (now - state.t0 >= UPLOAD_DURATION_MS) break;
             }
           } catch (err) {
             failures.push(err);
-            // 失败批的 5MB 已送出，计入累计字节（供最终均值与后续批次进度折算）
+            // 失败批的 5MB 已送出，计入累计字节（供进度与 totalBytes；速率分子用 bytesAtT0 基线
+            // 吸收 t0 之前落入的部分——其余正常成功批均有时间归属，可接受）
             state.bytes += body.size;
             adjustCapacity();
           }
@@ -801,10 +812,10 @@
         await Promise.allSettled(connections);
         meter.dispose();
 
-        // 全部连接失败，或总传输 0 字节（请求被拒但 HTTP 2xx）→ 没有有效数据，整体判失败
+        // 全部连接失败，或总传输 0 字节（防御分支：每条连接至少成功提交一批才可能
+        // 继续，因此正常路径恒 >0；仅全部连接失败可达此处）→ 没有有效数据，整体判失败
         if (failures.length === UPLOAD_CONCURRENCY || state.bytes === 0) {
-          resetRingText(); // 环内恢复默认
-          document.getElementById('ring-progress').style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          meter.restoreRing(); // 环恢复默认
           uploadValue.textContent = prevUploadText; // 卡片恢复上次的有效值
           throw new Error(
             failures.length
@@ -820,10 +831,13 @@
         // 测速时长：取最后一个字节发出的时刻（丢弃失败连接造成的空转尾段，
         // 避免稳定段窗口包含零斜率平线而拖低最终值）
         const durationMs = (state.lastByteAt ?? state.t0) - state.t0;
-        // 最终值 = 全程均值（bytes / duration）。上传字节以 5MB 批为单位跳变，
-        // 200ms 采样间的「斜率」只是批次落地时刻的噪音而非真实速率——
+        // 最终值 = 全程均值。分子用 bytesAtT0 基线：批次串行（批次 n+1 在批次 n 响应后才开始），
+        // 批次 1 在 t0 之前已送出，若计入分子会用 N-1 个批周期分摊 N 批字节，系统性高估
+        // N/(N-1)（N=3 时 1.5×）。减掉基线后分子精确对应 t0→末字节的全部字节。
+        // 上传字节以 5MB 批跳变，200ms 采样间的「斜率」只是批次落地噪音而非真实速率——
         // 实测单批 5MB 在采样窗内落地会产生 >1Gbps 的虚假斜率，故不做稳定段斜率
-        const uploadMbps = (state.bytes * 8) / 1e6 / Math.max(durationMs / 1000, 1);
+        const uploadMbps =
+          ((state.bytes - state.bytesAtT0) * 8) / 1e6 / Math.max(durationMs / 1000, 1);
 
         // 收尾：指标卡写最终值，圆环恢复默认
         meter.finish(uploadMbps);
@@ -854,7 +868,7 @@
         ringButton.setAttribute('aria-busy', String(busy));
       }
 
-      /** 环内文字恢复默认 */
+      /** 环内文字恢复默认（点击开始时清除上次的失败提示；阶段内部恢复用 meter.restoreRing） */
       function resetRingText() {
         document.getElementById('ring-value').textContent = '开始';
         document.getElementById('ring-sub').textContent = '点击测速';
