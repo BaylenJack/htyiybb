@@ -389,6 +389,8 @@
       // Cloudflare 测速端点：bytes=0 返回空响应体，适合延迟探测
       const PING_URL = 'https://speed.cloudflare.com/__down?bytes=0';
       const PING_SAMPLES = 5;
+      // 有效样本下限：≥3 个有效探测才出结果；少于 3 个时网络不可用，判该阶段失败
+      const PING_MIN_VALID = 3;
       // 单次延迟探测超时：网络挂起时中止请求，避免整个测速流程无限阻塞
       const PING_TIMEOUT_MS = 10000;
 
@@ -413,7 +415,10 @@
       /**
        * 延迟与抖动测量：5 次 0 字节请求，
        * 取最小值为延迟，抖动 = 各次延迟与最小延迟差值的平均（平均偏差）。
+       * 单个探测失败（超时/网络抖动）时跳过该样本继续；
+       * 有效样本 < 3 个才抛错（判该阶段失败，由调用方呈现）。
        * @returns {Promise<{latencyMs: number, jitterMs: number}>}
+       * @throws {Error} 有效样本不足 PING_MIN_VALID 个
        */
       async function measureLatency() {
         // 预热请求（丢弃结果）：建立 DNS/连接/TLS，避免冷启动把抖动抬高到失真水平。
@@ -425,11 +430,18 @@
         }
         const samples = [];
         for (let i = 0; i < PING_SAMPLES; i++) {
-          // 时间戳查询参数防浏览器缓存
-          const { durationMs } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-${i}`, {
-            timeoutMs: PING_TIMEOUT_MS,
-          });
-          samples.push(durationMs);
+          // 时间戳查询参数防浏览器缓存；单样本失败跳过，不中止整个阶段
+          try {
+            const { durationMs } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-${i}`, {
+              timeoutMs: PING_TIMEOUT_MS,
+            });
+            samples.push(durationMs);
+          } catch (err) {
+            console.warn(`延迟探测 #${i} 失败，跳过该样本：`, err);
+          }
+        }
+        if (samples.length < PING_MIN_VALID) {
+          throw new Error(`延迟探测有效样本不足（${samples.length}/${PING_SAMPLES}）`);
         }
         const latencyMs = Math.min(...samples);
         const jitterMs =
