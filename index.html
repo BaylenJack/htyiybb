@@ -908,6 +908,20 @@
       /** 详情表填「—」的键（结果缺席时的展示），与页面初始 HTML 一致 */
       const DETAIL_EMPTY = '—';
 
+      /** 测速启动：清空详情表（避免重跑的前 17 秒残留上一轮的数值） */
+      function resetDetails() {
+        for (const id of [
+          'detail-ping',
+          'detail-jitter',
+          'detail-download',
+          'detail-upload',
+          'detail-ip',
+          'detail-server',
+        ]) {
+          document.getElementById(id).textContent = DETAIL_EMPTY;
+        }
+      }
+
       /**
        * 填结果详情表：三个测量阶段的成功/失败结果 + 服务器信息。
        * 失败阶段对应行显示「失败」；服务器信息缺失时显示「未知位置」。
@@ -976,6 +990,7 @@
         try {
           // 时间戳查询参数防浏览器缓存；超时走 fetchWithTiming 的默认 15s
           const { response } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-server`);
+          if (!response.ok) return null; // 非 2xx（如 429/5xx）→ 视为失败，降级「未知位置」
           const city = response.headers.get('cf-meta-city');
           const country = response.headers.get('cf-meta-country');
           const asn = response.headers.get('cf-meta-asn');
@@ -1015,6 +1030,7 @@
         setBusy(true);
         resetMetrics(); // 指标卡归零
         resetGradeScale(); // 清除上次的分级高亮/置灰（避免下载失败时残留陈旧等级）
+        resetDetails(); // 清空详情表（避免重跑时残留上一轮数值）
         resetRingText(); // 环内恢复默认（清除上次的失败提示）
         // 每次启动都重新预取服务器信息（显示当前连接节点），失败时状态行降级为「未知位置」
         const serverPromise = fetchServerInfo().then((server) => {
@@ -1036,9 +1052,7 @@
             console.error('延迟测量失败：', err);
             results.latency = null;
             document.getElementById('ping-value').textContent = '失败';
-            document.getElementById('jitter-value').textContent = '抖动失败';
-            document.getElementById('ring-value').textContent = '测速失败';
-            document.getElementById('ring-sub').textContent = '延迟测量失败，跳过此阶段';
+            document.getElementById('jitter-value').textContent = '抖动 失败';
           }
 
           // 阶段 2：下载（阶段内部自行管理环文案与圆环进度）
@@ -1048,8 +1062,6 @@
             console.error('下载测量失败：', err);
             results.download = null;
             document.getElementById('download-value').textContent = '失败';
-            document.getElementById('ring-value').textContent = '测速失败';
-            document.getElementById('ring-sub').textContent = '下载测量失败，跳过此阶段';
           }
 
           // 阶段 3：上传
@@ -1059,8 +1071,6 @@
             console.error('上传测量失败：', err);
             results.upload = null;
             document.getElementById('upload-value').textContent = '失败';
-            document.getElementById('ring-value').textContent = '测速失败';
-            document.getElementById('ring-sub').textContent = '上传测量失败，跳过此阶段';
           }
 
           // 等服务器信息落地（不影响测速；异常路径下其 catch 已静默处理）
@@ -1075,10 +1085,17 @@
             muteGradeScale();
           }
         } finally {
-          // 无论成败：环内恢复默认并提示可再次测速，解除防重入锁
-          resetRingText();
-          document.getElementById('ring-value').textContent = '再次测速';
-          setBusy(false);
+          // 汇总到环：全部成功 → 提示再次测速；有阶段失败 → 环级失败可见性
+          // （失败阶段的具体位置已由指标卡「失败」+ 详情表 + 色条置灰承载）
+          const anyFailed = !results.latency || !results.download || !results.upload;
+          if (anyFailed) {
+            document.getElementById('ring-value').textContent = '部分指标失败';
+            document.getElementById('ring-sub').textContent = '点击再次测速';
+          } else {
+            document.getElementById('ring-value').textContent = '再次测速';
+            document.getElementById('ring-sub').textContent = '点击测速';
+          }
+          setBusy(false); // 无论成败：解除防重入锁
         }
       }
 
