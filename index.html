@@ -274,6 +274,10 @@
       box-shadow: 0 0 10px currentColor;
     }
 
+    /* 下载失败：无有效等级，整条置灰（去色 + 变暗） */
+    .speed-scale.muted .scale-item { opacity: 0.35; }
+    .speed-scale.muted .scale-dot { filter: grayscale(1); }
+
     /* ========== 页脚 ========== */
     .footer {
       padding: 20px;
@@ -887,6 +891,15 @@
         document.getElementById('upload-value').textContent = METRIC_PLACEHOLDER;
       }
 
+      /** 测速启动：清除分级色条的上次高亮/置灰状态，避免残留陈旧等级 */
+      function resetGradeScale() {
+        const scale = document.getElementById('speed-scale');
+        scale.classList.remove('has-result', 'muted');
+        for (const item of scale.children) {
+          item.classList.remove('active');
+        }
+      }
+
       /** 详情表某行写入：成功填数值（保留 1 位小数），失败/无结果填「失败」或「—」 */
       function setDetailRow(id, text) {
         document.getElementById(id).textContent = text;
@@ -941,6 +954,16 @@
         }
       }
 
+      /** 下载失败：无有效等级，整条置灰（去色 + 变暗），不残留任何档位高亮 */
+      function muteGradeScale() {
+        const scale = document.getElementById('speed-scale');
+        scale.classList.remove('has-result');
+        scale.classList.add('muted');
+        for (const item of scale.children) {
+          item.classList.remove('active');
+        }
+      }
+
       /* ========== 服务器信息预取 ========== */
 
       /**
@@ -991,6 +1014,7 @@
       async function runSpeedTest() {
         setBusy(true);
         resetMetrics(); // 指标卡归零
+        resetGradeScale(); // 清除上次的分级高亮/置灰（避免下载失败时残留陈旧等级）
         resetRingText(); // 环内恢复默认（清除上次的失败提示）
         // 每次启动都重新预取服务器信息（显示当前连接节点），失败时状态行降级为「未知位置」
         const serverPromise = fetchServerInfo().then((server) => {
@@ -1044,8 +1068,12 @@
 
           // 汇总展示：详情表 + 速度分级色条
           renderDetails(results);
-          // 速度分级以下载速度为准（下载失败时整条置灰，可读但不误导）
-          if (results.download) highlightGrade(gradeFor(results.download.downloadMbps));
+          // 速度分级以下载速度为准；下载失败时整条置灰（无有效等级，可读但不误导）
+          if (results.download) {
+            highlightGrade(gradeFor(results.download.downloadMbps));
+          } else {
+            muteGradeScale();
+          }
         } finally {
           // 无论成败：环内恢复默认并提示可再次测速，解除防重入锁
           resetRingText();
