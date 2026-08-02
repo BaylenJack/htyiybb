@@ -1,62 +1,90 @@
-# 网络测速（SpeedTest）
+<div align="center">
 
-纯前端、单 HTML 文件的浏览器测速站：深色现代风格，测量网络**延迟、抖动、下载与上传速度**，并以实时仪表盘呈现测速过程。
+# ⚡ 网络测速 · SpeedTest
 
-零依赖、零构建、单文件即可运行——所有样式与测速逻辑全部内联在 `index.html` 中。
+**纯前端 · 单文件 · 零依赖的开源测速站**
 
-## 功能
+一个深色现代风格、可直接部署的浏览器测速工具。测量你的网络 **延迟、抖动、下载与上传速度**，并配实时仪表盘呈现测速过程。
 
-- **延迟（Ping）与抖动（Jitter）**：5 次探测取最小值作为延迟，抖动 = 各次探测与最小值的平均偏差
-- **下载测速**：3 路并发流式下载（每路 50MB，封顶 150MB），逐块累计字节
-- **上传测速**：2 路并发分批上传（每批 5MB，共 30MB 封顶），流量直达 Cloudflare 上传端点
-- **实时仪表盘**：SVG 圆环进度 + 环内大数字，测速过程逐帧显示实时速率（EMA 平滑）
-- **速度分级**：最终结果按阈值着色（极好 / 好 / 一般 / 差），一眼判断网络水平
-- **服务器信息**：通过响应头显示连接的 Cloudflare 边缘节点城市、ASN 与出口 IP
-- **结果详情表**：Ping / 抖动 / 下载 / 上传 / IP / 服务器位置汇总展示
-- **健壮性**：单连接失败只跳过该连接，单阶段失败不中断流程，其他指标照常测出
+`index.html` 一个文件搞定一切——结构、样式、测速引擎全部内联，开箱即用。
 
-## 运行方式
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%2F%20Desktop-blue)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
+[![Made with ❤](https://img.shields.io/badge/Made%20with-%E2%9D%A4-ff69b4)](#)
 
-无构建步骤、无外部依赖，推荐用本地静态服务器：
+</div>
+
+---
+
+## ✨ 特性
+
+| | 说明 |
+|---|---|
+| 📡 **延迟 + 抖动** | 5 次探测取最小值，抖动 = 平均偏差；单个探测失败自动跳过 |
+| ⬇️ **下载测速** | 3 路并发流式下载（每路 50MB），实时逐块累计 |
+| ⬆️ **上传测速** | 2 路并发分批上传（每批 5MB），流量直达 Cloudflare 端点 |
+| 🎛️ **实时仪表盘** | SVG 圆环进度 + 环内大数字，EMA 平滑逐帧显示 |
+| 🎨 **速度分级** | 按阈值着色（极好 / 好 / 一般 / 差），一眼判断网络水平 |
+| 🌐 **服务器信息** | 自动识别连接的 Cloudflare 边缘节点（城市 / ASN / IP） |
+| 🛡️ **健壮性** | 单连接失败只跳过该连接，单阶段失败不中断整体流程 |
+| 🔒 **隐私友好** | 测速数据仅在浏览器本地计算，除测速流量外不发送任何数据 |
+
+## 🚀 快速开始
+
+**方式一 · 本地静态服务器（推荐）**
 
 ```bash
-cd speedtest
+git clone https://github.com/BaylenJack/htyiybb.git
+cd htyiybb
 python -m http.server 8000
 ```
 
-浏览器访问 <http://localhost:8000>。
+浏览器访问 <http://localhost:8000>，点击圆形按钮开始测速。
 
-也可以直接双击 `index.html` 用浏览器打开。测速流量是页面向 `https://speed.cloudflare.com` 发起的跨源请求（Cloudflare 返回 `Access-Control-Allow-Origin: *`），从 `file://` 页面发起也能正常测速；部分浏览器/配置下可能受限，若双击打开无反应，请改用本地服务器方式。
+**方式二 · 直接双击**
 
-## 技术原理
+用浏览器打开 `index.html` 即可。测速流量是页面向 `https://speed.cloudflare.com` 发起的跨源请求（返回 `Access-Control-Allow-Origin: *`），从 `file://` 页面发起也能正常测速；若双击无反应，请改用本地服务器方式。
 
-- **测速端点**：Cloudflare 公开测速接口——`https://speed.cloudflare.com/__down?bytes=N`（下载，返回 N 字节随机数据并流式输出；`bytes=0` 用于延迟探测）与 `https://speed.cloudflare.com/__up`（上传，POST 任意数据体）。服务器信息取自响应头中的 `cf-meta-*` 字段（城市 / 国家 / ASN / IP）。
-- **并发**：下载 3 路并发、上传 2 路并发，各自共享一个累计字节计数器与计时起点 `t0`；并发连接数参考真实测速工具（如 speedtest.net / Cloudflare 官方测速）的做法，以逼近可用带宽。
-- **流式读取**：下载经 `ReadableStream` 逐块读取，字节数实时累计；上传按 5MB 批发送，批次串行（下一批在上一批响应后开始），避免单连接负载被浏览器缓冲打散。
-- **计时方法**：`t0` 在首个数据块到达/送出时置位，`lastByteAt` 记录最后一个字节时刻；最终速率 = 传输字节 / 时长。上传的速率分子以 `bytesAtT0` 为基线——批次 1 在 `t0` 之前已送出，若不计基线，最坏情况（各批耗时相近）会高估近 `N/(N-1)` 倍（N=3 时约 1.5 倍）；扣除基线后分子精确对应 `t0` 到末字节之间的全部字节，该偏差已被消除。
-- **实时速率**：`requestAnimationFrame` 逐帧用帧间字节差分计算瞬时速率，经 EMA（α=0.2）平滑后驱动环内仪表盘。
-- **稳定段平均**：最终值取稳定段的平均吞吐——丢弃起始 `skipMs` 的慢启动段（首个请求的 DNS/连接/TLS 冷启动），用剩余采样点的首末差分计算，避免低起步拉低整体数值。
-- **防缓存**：延迟探测与服务器信息请求均带时间戳查询参数（`_=${Date.now()}`），防止浏览器缓存干扰。
-- **超时与取消**：所有请求带超时（`AbortSignal.timeout`，与调用方 signal 经 `AbortSignal.any` 合并），挂起连接自动中止；下载/上传阶段有目标时长（约 8 秒），更快时以载荷读满/传满提前结束。
-- 测速数据仅在浏览器本地计算，除测速流量本身外无任何数据离开浏览器。
+**方式三 · 部署到任意静态托管**
 
-## 局限性
+上传 `index.html` 到 GitHub Pages、Vercel、Netlify 或任意静态文件服务即可——零配置，开箱即用。
 
-- 测的是**本机 ↔ Cloudflare 边缘节点**的速度，反映到达 Cloudflare 边缘的网络质量；不代表到其他网站、服务器或运营商内部的真实速度。
-- 结果受 **Wi-Fi 信号强度、其他设备/程序占用带宽**影响，多次测量取平稳时段的数值更可信。
-- 测速流量本身消耗流量：下载最多约 **150MB**，上传最多约 **30MB**（按套餐流量计费或流量有限的网络请注意）。
+## 🔧 技术原理
 
-## 目录结构
+- **测速端点**：[Cloudflare 公开测速接口](https://speed.cloudflare.com/) —— `__down?bytes=N`（下载 N 字节随机数据并流式输出，`bytes=0` 用于延迟探测）与 `__up`（上传，POST 任意数据体）
+- **并发策略**：下载 3 路 / 上传 2 路并发，逼近真实可用带宽（同 speedtest.net 思路）
+- **流式读取**：下载经 `ReadableStream` 逐块读取实时累计；上传按 5MB 批串行发送
+- **精准计时**：`t0` 在首个数据块到达时置位，`lastByteAt` 记录末字节时刻；上传以 `bytesAtT0` 为基线消除 `N/(N-1)` 系统性高估
+- **稳定段平均**：丢弃慢启动段（DNS / 连接 / TLS 冷启动），取稳定段平均吞吐作为最终值
+- **EMA 平滑**：`requestAnimationFrame` 帧间差分 + α=0.2 指数移动平均，仪表盘数字流畅不抖动
+- **超时兜底**：所有请求 `AbortSignal.timeout` 超时自动中止，挂起连接不会卡死流程
+
+## 📁 目录结构
 
 ```
-speedtest/
+htyiybb/
 ├── index.html   # 唯一入口：结构 + 样式 + 测速引擎（全部内联，单文件）
 ├── README.md    # 本文档
-└── docs/        # 开发计划文档
+└── LICENSE      # MIT 开源许可
 ```
 
-## 注意事项
+## 🤝 贡献
 
-- 需要**现代浏览器**：使用了 `AbortSignal.any` / `AbortSignal.timeout`、`ReadableStream`、`crypto.getRandomValues`（上传随机数据）等 API，建议使用近两年的 Chrome / Edge / Firefox / Safari。
-- 部分连接失败时控制台会出现 `console.warn`（用于诊断，属预期行为）；阶段失败会记 `console.error`。
-- 测速目标时长约 8 秒 + 延迟探测，完整跑完约 10 秒左右。
+欢迎任何形式的贡献——Bug 报告、功能建议、代码提交都行！
+
+- **提 Issue**：遇到问题或想加功能，[开一个 issue](https://github.com/BaylenJack/htyiybb/issues/new)
+- **提 PR**：Fork 后修改，提交 PR 即可；保持单文件原则（一切内联在 `index.html`）
+- **行为准则**：友善、尊重、就事论事
+
+## 📄 License
+
+[MIT License](LICENSE) · Copyright (c) 2026 [BaylenJack](https://github.com/BaylenJack)
+
+---
+
+<div align="center">
+
+**如果这个项目对你有帮助，欢迎 ⭐ Star 支持！**
+
+</div>
