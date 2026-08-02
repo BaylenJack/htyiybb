@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>网络测速 · SpeedTest</title>
   <meta name="description" content="纯前端浏览器网络测速工具，测量下载、上传速度与延迟">
-  <link rel="stylesheet" href="styles.css">
   <style>
     /* ========== 深色主题变量 ========== */
     :root {
@@ -21,7 +20,6 @@
       --success: #22c55e;
       --warning: #eab308;
       --danger: #ef4444;
-      --ring-bg: #0b1220;
     }
 
     /* ========== 基础 ========== */
@@ -361,6 +359,91 @@
     <p>测速流量直达 Cloudflare 边缘节点 · 数据仅在浏览器本地计算</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    /* ========== 测速引擎（内联，保持单文件） ========== */
+    (function () {
+      'use strict';
+
+      // Cloudflare 测速端点：bytes=0 返回空响应体，适合延迟探测
+      const PING_URL = 'https://speed.cloudflare.com/__down?bytes=0';
+      const PING_SAMPLES = 5;
+
+      /**
+       * 带计时的 fetch 封装。
+       * @param {string} url 请求地址
+       * @param {RequestInit} [options] 可选的 fetch 选项
+       * @returns {Promise<{response: Response, durationMs: number}>} 响应与耗时（ms）
+       */
+      async function fetchWithTiming(url, options) {
+        const start = performance.now();
+        const response = await fetch(url, options);
+        return { response, durationMs: performance.now() - start };
+      }
+
+      /**
+       * 延迟与抖动测量：5 次 0 字节请求，
+       * 取最小值为延迟，抖动 = 各次延迟与最小延迟差值的平均（平均偏差）。
+       * @returns {Promise<{latencyMs: number, jitterMs: number}>}
+       */
+      async function measureLatency() {
+        // 预热请求（丢弃结果）：建立 DNS/连接/TLS，避免冷启动把抖动抬高到失真水平
+        await fetchWithTiming(`${PING_URL}&_=${Date.now()}-warmup`);
+        const samples = [];
+        for (let i = 0; i < PING_SAMPLES; i++) {
+          // 时间戳查询参数防浏览器缓存
+          const { durationMs } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-${i}`);
+          samples.push(durationMs);
+        }
+        const latencyMs = Math.min(...samples);
+        const jitterMs =
+          samples.reduce((sum, s) => sum + Math.abs(s - latencyMs), 0) / samples.length;
+        const result = { latencyMs, jitterMs };
+        updateLatencyUI(result);
+        return result;
+      }
+
+      /* ========== UI 更新 ========== */
+
+      /** 更新 Ping 指标卡（数值 + 抖动子行） */
+      function updateLatencyUI({ latencyMs, jitterMs }) {
+        document.getElementById('ping-value').textContent = `${Math.round(latencyMs)} ms`;
+        document.getElementById('jitter-value').textContent = `抖动 ${jitterMs.toFixed(1)} ms`;
+      }
+
+      /* ========== 圆环按钮交互（点击 / Enter / 空格） ========== */
+
+      const ringButton = document.getElementById('ring-button');
+
+      /** 测速运行时设置 aria-busy（按钮 + 页面），兼作重复触发防护 */
+      function setBusy(busy) {
+        document.body.setAttribute('aria-busy', String(busy));
+        ringButton.setAttribute('aria-busy', String(busy));
+      }
+
+      async function handleRingTrigger() {
+        if (ringButton.getAttribute('aria-busy') === 'true') return; // 防重复触发
+        setBusy(true);
+        try {
+          await measureLatency();
+        } catch (err) {
+          console.error('延迟测量失败：', err);
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      ringButton.addEventListener('click', handleRingTrigger);
+      ringButton.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault(); // 阻止空格键滚动页面
+          handleRingTrigger();
+        }
+      });
+
+      // 测速引擎 API（后续任务扩展 measureDownload / measureUpload / runSpeedTest）
+      window.fetchWithTiming = fetchWithTiming;
+      window.measureLatency = measureLatency;
+    })();
+  </script>
 </body>
 </html>
