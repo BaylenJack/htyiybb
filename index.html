@@ -18,6 +18,7 @@
       --accent: #22d3ee;
       --accent-2: #3b82f6;
       --success: #22c55e;
+      --good: #84cc16; /* 速度分级「好」档（介于 success 与 warning 之间的青绿色） */
       --warning: #eab308;
       --danger: #ef4444;
     }
@@ -248,12 +249,29 @@
       gap: 6px;
       font-size: 13px;
       color: var(--text-secondary);
+      transition: opacity 0.3s ease;
     }
 
     .scale-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
+      color: var(--text-secondary);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* 分级色块颜色（语义色变量）；档位高亮由测速 JS 驱动 */
+    .scale-dot.great { background: var(--success); color: var(--success); }
+    .scale-dot.good { background: var(--good); color: var(--good); }
+    .scale-dot.fair { background: var(--warning); color: var(--warning); }
+    .scale-dot.poor { background: var(--danger); color: var(--danger); }
+
+    /* 结果展示：未命中的档位变暗，命中的档位高亮（色块放大 + 同色辉光） */
+    .speed-scale.has-result .scale-item { opacity: 0.45; }
+    .speed-scale.has-result .scale-item.active { opacity: 1; }
+    .speed-scale.has-result .scale-item.active .scale-dot {
+      transform: scale(1.35);
+      box-shadow: 0 0 10px currentColor;
     }
 
     /* ========== 页脚 ========== */
@@ -345,11 +363,11 @@
         </tbody>
       </table>
 
-      <div class="speed-scale" aria-label="速度分级">
-        <span class="scale-item"><i class="scale-dot" style="background:#22c55e"></i>极好</span>
-        <span class="scale-item"><i class="scale-dot" style="background:#84cc16"></i>好</span>
-        <span class="scale-item"><i class="scale-dot" style="background:#eab308"></i>一般</span>
-        <span class="scale-item"><i class="scale-dot" style="background:#ef4444"></i>差</span>
+      <div class="speed-scale" id="speed-scale" aria-label="速度分级">
+        <span class="scale-item great"><i class="scale-dot great"></i>极好</span>
+        <span class="scale-item good"><i class="scale-dot good"></i>好</span>
+        <span class="scale-item fair"><i class="scale-dot fair"></i>一般</span>
+        <span class="scale-item poor"><i class="scale-dot poor"></i>差</span>
       </div>
     </section>
 
@@ -858,6 +876,184 @@
         document.getElementById('jitter-value').textContent = `抖动 ${jitterMs.toFixed(1)} ms`;
       }
 
+      /** 指标卡初始占位符（无结果时的显示；页面加载与测速启动时使用） */
+      const METRIC_PLACEHOLDER = '—';
+
+      /** 测速启动：全部指标卡归零复位 */
+      function resetMetrics() {
+        document.getElementById('ping-value').textContent = METRIC_PLACEHOLDER;
+        document.getElementById('jitter-value').textContent = '抖动 —';
+        document.getElementById('download-value').textContent = METRIC_PLACEHOLDER;
+        document.getElementById('upload-value').textContent = METRIC_PLACEHOLDER;
+      }
+
+      /** 详情表某行写入：成功填数值（保留 1 位小数），失败/无结果填「失败」或「—」 */
+      function setDetailRow(id, text) {
+        document.getElementById(id).textContent = text;
+      }
+
+      /** 详情表填「—」的键（结果缺席时的展示），与页面初始 HTML 一致 */
+      const DETAIL_EMPTY = '—';
+
+      /**
+       * 填结果详情表：三个测量阶段的成功/失败结果 + 服务器信息。
+       * 失败阶段对应行显示「失败」；服务器信息缺失时显示「未知位置」。
+       */
+      function renderDetails({ latency, download, upload, server }) {
+        setDetailRow('detail-ping', latency ? `${Math.round(latency.latencyMs)} ms` : '失败');
+        setDetailRow('detail-jitter', latency ? `${latency.jitterMs.toFixed(1)} ms` : '失败');
+        setDetailRow(
+          'detail-download',
+          download ? `${download.downloadMbps.toFixed(1)} Mbps` : '失败'
+        );
+        setDetailRow('detail-upload', upload ? `${upload.uploadMbps.toFixed(1)} Mbps` : '失败');
+        setDetailRow('detail-ip', server?.ip ?? DETAIL_EMPTY);
+        // 仅有 IP 时位置无从得知 → 「未知位置」（IP 已在上一行单独展示）
+        setDetailRow(
+          'detail-server',
+          server?.city || server?.asn
+            ? [server.city, server.asn && `AS${server.asn}`].filter(Boolean).join(' · ')
+            : '未知位置'
+        );
+      }
+
+      /* ========== 速度分级色条 ========== */
+
+      // 下载速度分级阈值（Mbps）：<10 差 / 10-50 一般 / 50-200 好 / >200 极好（speedtest 惯例）
+      const GRADE_THRESHOLDS = [
+        { name: 'great', min: 200 }, // 极好
+        { name: 'good', min: 50 }, // 好
+        { name: 'fair', min: 10 }, // 一般
+        { name: 'poor', min: 0 }, // 差
+      ];
+
+      /** 速度 → 档位名称 */
+      function gradeFor(mbps) {
+        return GRADE_THRESHOLDS.find((g) => mbps >= g.min).name;
+      }
+
+      /** 按档位高亮色条对应色块（其余变暗）；加载时整体置灰 */
+      function highlightGrade(gradeName) {
+        const scale = document.getElementById('speed-scale');
+        scale.classList.add('has-result');
+        for (const item of scale.children) {
+          item.classList.toggle('active', item.classList.contains(gradeName));
+        }
+      }
+
+      /* ========== 服务器信息预取 ========== */
+
+      /**
+       * 预取服务器信息：请求一次 0 字节测速端点，读取响应头的 cf-meta-* 元数据
+       * （城市/国家/ASN/IP）。部分 Cloudflare 边缘不返回地理头（仅 cf-meta-ip）——
+       * 拿到什么显示什么；全部缺失时返回 null，由调用方降级为「未知位置」。
+       * @returns {Promise<{city: string, asn: string, ip: string}|null>}
+       */
+      async function fetchServerInfo() {
+        try {
+          // 时间戳查询参数防浏览器缓存；超时走 fetchWithTiming 的默认 15s
+          const { response } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-server`);
+          const city = response.headers.get('cf-meta-city');
+          const country = response.headers.get('cf-meta-country');
+          const asn = response.headers.get('cf-meta-asn');
+          const ip = response.headers.get('cf-meta-ip');
+          if (!city && !country && !asn && !ip) return null; // 无任何元数据 → 视为失败
+          return {
+            city: [city, country].filter(Boolean).join(' · '),
+            asn,
+            ip,
+          };
+        } catch {
+          return null; // 网络失败/超时 → 调用方显示「未知位置」
+        }
+      }
+
+      /** 状态行显示服务器位置；预取失败时显示「未知位置」 */
+      function showServerLocation(server) {
+        if (!server) {
+          document.getElementById('server-location').textContent = '连接节点：未知位置';
+          return;
+        }
+        const parts = [];
+        if (server.city) parts.push(server.city);
+        if (server.asn) parts.push(`AS${server.asn}`);
+        if (server.ip) parts.push(server.ip);
+        document.getElementById('server-location').textContent = `连接节点：${parts.join(' · ')}`;
+      }
+
+      /* ========== 测速流程编排 ========== */
+
+      /**
+       * 完整测速流程：延迟/抖动 → 下载 → 上传。
+       * 服务器信息与延迟并行预取（预取顺带充当连接预热）。
+       * 单阶段失败（超时/网络错误）不中断流程：该指标显示「失败」，其余阶段照常进行。
+       */
+      async function runSpeedTest() {
+        setBusy(true);
+        resetMetrics(); // 指标卡归零
+        resetRingText(); // 环内恢复默认（清除上次的失败提示）
+        // 每次启动都重新预取服务器信息（显示当前连接节点），失败时状态行降级为「未知位置」
+        const serverPromise = fetchServerInfo().then((server) => {
+          showServerLocation(server);
+          return server;
+        });
+
+        // 结果集：null = 阶段失败（流程继续，对应指标显示「失败」）
+        const results = { latency: null, download: null, upload: null, server: null };
+
+        try {
+          // 阶段 1：延迟/抖动（与服务器信息预取并行；预取充当该阶段的连接预热）
+          // 延迟阶段不驱动圆环——环内文案在此覆写，阶段结束后恢复默认
+          document.getElementById('ring-value').textContent = '测速中…';
+          document.getElementById('ring-sub').textContent = '延迟测试';
+          try {
+            results.latency = await measureLatency();
+          } catch (err) {
+            console.error('延迟测量失败：', err);
+            results.latency = null;
+            document.getElementById('ping-value').textContent = '失败';
+            document.getElementById('jitter-value').textContent = '抖动失败';
+            document.getElementById('ring-value').textContent = '测速失败';
+            document.getElementById('ring-sub').textContent = '延迟测量失败，跳过此阶段';
+          }
+
+          // 阶段 2：下载（阶段内部自行管理环文案与圆环进度）
+          try {
+            results.download = await measureDownload();
+          } catch (err) {
+            console.error('下载测量失败：', err);
+            results.download = null;
+            document.getElementById('download-value').textContent = '失败';
+            document.getElementById('ring-value').textContent = '测速失败';
+            document.getElementById('ring-sub').textContent = '下载测量失败，跳过此阶段';
+          }
+
+          // 阶段 3：上传
+          try {
+            results.upload = await measureUpload();
+          } catch (err) {
+            console.error('上传测量失败：', err);
+            results.upload = null;
+            document.getElementById('upload-value').textContent = '失败';
+            document.getElementById('ring-value').textContent = '测速失败';
+            document.getElementById('ring-sub').textContent = '上传测量失败，跳过此阶段';
+          }
+
+          // 等服务器信息落地（不影响测速；异常路径下其 catch 已静默处理）
+          results.server = await serverPromise;
+
+          // 汇总展示：详情表 + 速度分级色条
+          renderDetails(results);
+          // 速度分级以下载速度为准（下载失败时整条置灰，可读但不误导）
+          if (results.download) highlightGrade(gradeFor(results.download.downloadMbps));
+        } finally {
+          // 无论成败：环内恢复默认并提示可再次测速，解除防重入锁
+          resetRingText();
+          document.getElementById('ring-value').textContent = '再次测速';
+          setBusy(false);
+        }
+      }
+
       /* ========== 圆环按钮交互（点击 / Enter / 空格） ========== */
 
       const ringButton = document.getElementById('ring-button');
@@ -875,19 +1071,8 @@
       }
 
       async function handleRingTrigger() {
-        if (ringButton.getAttribute('aria-busy') === 'true') return; // 防重复触发
-        setBusy(true);
-        resetRingText(); // 清除上次的失败提示，环内恢复默认
-        try {
-          await measureLatency();
-        } catch (err) {
-          console.error('延迟测量失败：', err);
-          // 用户可见的失败提示（基础版；Task 5 编排会统一各指标的失败展示）
-          document.getElementById('ring-value').textContent = '开始';
-          document.getElementById('ring-sub').textContent = '测速失败，请检查网络连接';
-        } finally {
-          setBusy(false);
-        }
+        if (ringButton.getAttribute('aria-busy') === 'true') return; // 防重复触发（测速中忽略点击）
+        await runSpeedTest();
       }
 
       ringButton.addEventListener('click', handleRingTrigger);
@@ -898,7 +1083,7 @@
         }
       });
 
-      // 测速引擎 API（Task 5 将接管按钮编排：runSpeedTest 依次调用三个测量函数）
+      // 测速引擎 API（暴露供浏览器控制台调试与手动调用）
       window.fetchWithTiming = fetchWithTiming;
       window.measureLatency = measureLatency;
       window.measureDownload = measureDownload;
