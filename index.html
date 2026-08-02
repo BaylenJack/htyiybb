@@ -302,8 +302,8 @@
           </defs>
           <!-- 背景圆环 -->
           <circle class="ring-track" cx="130" cy="130" r="120"></circle>
-          <!-- 进度圆环（stroke-dashoffset 由后续任务中的 JS 驱动） -->
-          <circle class="ring-progress" cx="130" cy="130" r="120"></circle>
+          <!-- 进度圆环（stroke-dashoffset 由 JS 驱动：下载/上传进度） -->
+          <circle class="ring-progress" id="ring-progress" cx="130" cy="130" r="120"></circle>
         </svg>
         <div class="ring-content">
           <div class="ring-value" id="ring-value">开始</div>
@@ -417,6 +417,164 @@
         return result;
       }
 
+      /* ========== 下载测速 ========== */
+
+      // Cloudflare 测速端点：bytes=N 返回 N 字节随机数据并流式输出
+      const DOWNLOAD_BYTES_PER_CONNECTION = 35000000; // 每连接 35MB 载荷
+      const DOWNLOAD_URL = `https://speed.cloudflare.com/__down?bytes=${DOWNLOAD_BYTES_PER_CONNECTION}`;
+      const DOWNLOAD_CONCURRENCY = 3; // 并发连接数
+      // 目标时长约 8 秒：约 100Mbps 的连接 3 路并发约 8 秒读满；
+      // 更快时以读满提前结束，总传输量封顶 3×35MB ≈ 105MB
+      const DOWNLOAD_DURATION_MS = 8000;
+      const DOWNLOAD_SAMPLE_INTERVAL_MS = 200; // 采样间隔：供最终稳定段计算
+      // 最终值取稳定段：跳过前 20% 时长（连接起步爬坡、拥塞窗口效应），对剩余窗口取平均吞吐
+      const DOWNLOAD_STABLE_SKIP_RATIO = 0.2;
+      const RING_CIRCUMFERENCE = 754; // 圆环周长 2π×120；stroke-dashoffset 从 754 减到 0 表示进度 0→100%
+      const RING_EMA_ALPHA = 0.2; // 实时速率 EMA 平滑系数（rAF 每帧更新，越小越平滑）
+
+      /**
+       * 并发流式下载测速。
+       * 3 路并发拉取 35MB 随机数据，逐块累计字节；rAF + EMA 平滑实时速率并驱动
+       * 环内仪表盘；约 8 秒或全部连接读满载荷后停止，最终值取稳定段平均吞吐。
+       * @param {(info: {mbps: number, progress: number}) => void} [onProgress]
+       *   每帧回调：实时平滑速率（Mbps）与传输进度 0~1
+       * @returns {Promise<{downloadMbps: number, totalBytes: number, durationMs: number}>}
+       *   最终下载速度（Mbps）、总传输字节、测速时长（ms）
+       */
+      async function measureDownload(onProgress) {
+        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，done = 测试结束标记
+        const state = { t0: null, bytes: 0, done: false };
+        // 测试级取消信号：任一连接失败时中止其余连接，避免后台残留传输
+        const controller = new AbortController();
+        const samples = []; // 200ms 采样 {t, bytes}，供最终稳定段计算
+
+        const ringValue = document.getElementById('ring-value');
+        const ringSub = document.getElementById('ring-sub');
+        const ringProgress = document.getElementById('ring-progress');
+        const downloadValue = document.getElementById('download-value');
+        const prevDownloadText = downloadValue.textContent; // 失败时恢复卡片
+
+        // 进入测速 UI：环内数字清零、圆环复位
+        ringValue.textContent = '0.0';
+        ringSub.textContent = '下载测速中…';
+        ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+
+        // rAF 渲染循环（主驱动）：帧间字节差 → 瞬时速率 → EMA 平滑 → 环内大数字 + 圆环进度
+        let emaMbps = 0;
+        let hasEma = false;
+        let prevBytes = 0;
+        let prevTime = null;
+        const updateDisplay = () => {
+          if (state.t0 === null || state.done) return;
+          const now = performance.now();
+          if (prevTime !== null) {
+            const dtSec = Math.max(now - prevTime, 1) / 1000;
+            const instMbps = ((state.bytes - prevBytes) * 8) / 1e6 / dtSec;
+            emaMbps = hasEma ? emaMbps * (1 - RING_EMA_ALPHA) + instMbps * RING_EMA_ALPHA : instMbps;
+            hasEma = true;
+            // 进度 = 已传输字节 / 总载荷（3 路 × 35MB），读满即 100%
+            const progress = Math.min(
+              state.bytes / (DOWNLOAD_CONCURRENCY * DOWNLOAD_BYTES_PER_CONNECTION),
+              1
+            );
+            ringValue.textContent = emaMbps.toFixed(1);
+            ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
+            downloadValue.textContent = emaMbps.toFixed(1);
+            if (onProgress) onProgress({ mbps: emaMbps, progress });
+          }
+          prevBytes = state.bytes;
+          prevTime = now;
+        };
+        const renderLoop = () => {
+          if (state.done) return;
+          updateDisplay();
+          requestAnimationFrame(renderLoop);
+        };
+        requestAnimationFrame(renderLoop);
+
+        // 200ms 采样：push 样本供最终稳定段计算；同时驱动一次仪表盘——
+        // 页面不可见时浏览器暂停 rAF，采样器兜底保证仪表盘仍实时更新
+        const samplerId = setInterval(() => {
+          if (state.t0 !== null) {
+            samples.push({ t: performance.now() - state.t0, bytes: state.bytes });
+            updateDisplay();
+          }
+        }, DOWNLOAD_SAMPLE_INTERVAL_MS);
+
+        /** 单条连接：拉流并逐块累计字节；时长到或读满即止 */
+        async function runConnection(i) {
+          const url = `${DOWNLOAD_URL}&_=${Date.now()}-${i}`;
+          const { response } = await fetchWithTiming(url, { signal: controller.signal });
+          if (!response.ok) throw new Error(`下载连接 ${i + 1} 失败：HTTP ${response.status}`);
+          if (!response.body) throw new Error(`下载连接 ${i + 1} 无流式响应体`);
+          const reader = response.body.getReader();
+          try {
+            for (;;) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              state.bytes += value.byteLength;
+              // 计时起点：首个 chunk 到达的时刻（而非 fetch 发起时刻）——
+              // 排除 DNS/TCP/TLS 连接建立延迟，测的是纯传输吞吐；3 个 fetch
+              // 同一批次发起，各连接首 chunk 时差远小于建立延迟，对结果影响 <2%
+              if (state.t0 === null) state.t0 = performance.now();
+              // 时长到即停（各连接自检同一时钟，约同时停止）
+              if (performance.now() - state.t0 >= DOWNLOAD_DURATION_MS) break;
+            }
+          } catch (err) {
+            // 其他连接失败触发的主动取消（AbortError）：静默结束，不算本连接故障
+            if (controller.signal.aborted) return;
+            throw err;
+          } finally {
+            // 时长截止未读完时取消底层连接、立即停流；已读完时 cancel 是安全的 no-op
+            reader.cancel().catch(() => {});
+          }
+        }
+
+        const connections = [];
+        try {
+          for (let i = 0; i < DOWNLOAD_CONCURRENCY; i++) connections.push(runConnection(i));
+          await Promise.all(connections);
+        } catch (err) {
+          controller.abort(); // 中止其余连接（其 pending 的 read 会以 AbortError 拒绝）
+          await Promise.allSettled(connections); // 等所有连接收尾，避免后台残留传输
+          state.done = true;
+          clearInterval(samplerId);
+          resetRingText();
+          ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          downloadValue.textContent = prevDownloadText; // 卡片恢复上次的有效值
+          throw err;
+        }
+        state.done = true;
+        clearInterval(samplerId);
+
+        const durationMs = performance.now() - (state.t0 ?? performance.now());
+        samples.push({ t: durationMs, bytes: state.bytes }); // 补尾部样本，稳定段覆盖末段
+
+        // 最终值：稳定段（跳过前 20% 时长）内累计字节的斜率 = 平均吞吐；
+        // 稳定段样本不足时回退全程平均
+        const skipMs = durationMs * DOWNLOAD_STABLE_SKIP_RATIO;
+        const stable = samples.filter((s) => s.t >= skipMs);
+        let downloadMbps = 0;
+        if (durationMs >= 1) {
+          if (stable.length >= 2) {
+            const first = stable[0];
+            const last = stable[stable.length - 1];
+            downloadMbps =
+              ((last.bytes - first.bytes) * 8) / 1e6 / (Math.max(last.t - first.t, 1) / 1000);
+          } else {
+            downloadMbps = (state.bytes * 8) / 1e6 / (durationMs / 1000);
+          }
+        }
+
+        // 收尾：指标卡写最终值，圆环恢复默认
+        downloadValue.textContent = downloadMbps.toFixed(1);
+        resetRingText();
+        ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+        if (onProgress) onProgress({ mbps: downloadMbps, progress: 1 });
+
+        return { downloadMbps, totalBytes: state.bytes, durationMs };
+      }
+
       /* ========== UI 更新 ========== */
 
       /** 更新 Ping 指标卡（数值 + 抖动子行） */
@@ -465,9 +623,10 @@
         }
       });
 
-      // 测速引擎 API（后续任务扩展 measureDownload / measureUpload / runSpeedTest）
+      // 测速引擎 API（Task 5 将扩展 measureUpload / runSpeedTest 并接管按钮编排）
       window.fetchWithTiming = fetchWithTiming;
       window.measureLatency = measureLatency;
+      window.measureDownload = measureDownload;
     })();
   </script>
 </body>
