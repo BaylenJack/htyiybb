@@ -417,6 +417,146 @@
         return result;
       }
 
+      /* ========== 速率计（下载 / 上传共享的测量骨架） ========== */
+
+      const RING_CIRCUMFERENCE = 754; // 圆环周长 2π×120；stroke-dashoffset 从 754 减到 0 表示进度 0→100%
+      const RING_EMA_ALPHA = 0.2; // 实时速率 EMA 平滑系数（rAF 每帧更新，越小越平滑）
+      const SAMPLE_INTERVAL_MS = 200; // 采样间隔：供最终稳定段计算
+      // 最终值取稳定段：跳过前 max(20% 时长, 1000ms)（连接起步爬坡、拥塞窗口效应），
+      // 对剩余窗口取平均吞吐
+      const STABLE_SKIP_RATIO = 0.2;
+      // 稳定段最小绝对时长：1Gbps 等高带宽下总时长可能仅 ~1.5s，20% 比例会把窗口
+      // 压进慢启动爬坡段；1s 下限保证窗口至少覆盖一段稳态传输
+      const STABLE_MIN_MS = 1000;
+
+      /**
+       * 通用速率计：rAF + EMA 实时速率、200ms 采样、稳定段最终值计算、圆环/卡片 UI 驱动。
+       * 由 measureDownload / measureUpload 各自提供 state、常量与 UI 元素，共享同一骨架。
+       * @param {object} deps 依赖注入
+       * @param {{t0: number|null, bytes: number}} deps.state 共享累计字节；t0 由阶段在首字节发出时置位
+       * @param {{periodMs: number, capacityBytes: number}} deps.constants 阶段常量
+       *   periodMs：目标时长；capacityBytes：进度 100% 对应的总字节量（测满即提前结束）
+       * @param {{ringValue: Element, ringSub: Element, ringProgress: Element, metricValue: Element}} deps.elements
+       *   环内大数字 / 环下小字 / 进度圆环 / 对应指标卡数值
+       * @param {string} deps.phaseLabel 阶段文案，如「下载测速中…」
+       * @param {number} [deps.instWindowMs] 瞬时速率计算窗口（0 = 帧间差分，默认）。
+       *   流式下载用帧间差分 + EMA 即平滑；上传字节以 5MB 批跳变，帧间斜率只是批次
+       *   落地噪音，需 ≥1s 窗口的平均速率才接近真实吞吐
+       * @param {(info: {mbps: number, progress: number}) => void} [deps.onProgress]
+       *   每帧回调：实时平滑速率（Mbps）与传输进度 0~1
+       * @returns {{
+       *   renderLoop: () => void, updateDisplay: () => void, finish: (finalMbps: number) => void,
+       *   resetUi: () => void, dispose: () => void
+       * }}
+       *   renderLoop：rAF 主循环（阶段期间持续调用；done 后自动退出）；finish：收尾（写最终值、恢复圆环）；
+       *   resetUi：进入测速前的 UI 清零复位；dispose：结束时停掉采样器
+       */
+      function createRateMeter({ state, constants, elements, phaseLabel, instWindowMs = 0, onProgress }) {
+        const samples = []; // 200ms 采样 {t, bytes}，供最终稳定段计算
+        let done = false;
+
+        /** 进入测速 UI：环内数字清零、圆环复位 */
+        function resetUi() {
+          elements.ringValue.textContent = '0.0';
+          elements.ringSub.textContent = phaseLabel;
+          elements.ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+        }
+
+        /** rAF 帧回调：帧间字节差 → 瞬时速率 → EMA 平滑 → 环内大数字 + 圆环进度 + 指标卡 */
+        let emaMbps = 0;
+        let hasEma = false;
+        let prevBytes = 0;
+        let prevTime = null;
+        // 滑动窗口速率状态（instWindowMs > 0 时启用）：窗口内的平均吞吐
+        let winBytes = 0;
+        let winTime = null;
+        let winRate = 0;
+        function updateDisplay() {
+          if (state.t0 === null || done) return;
+          const now = performance.now();
+          if (prevTime !== null) {
+            let instMbps;
+            if (instWindowMs > 0) {
+              // 窗口速率：批次落地才更新；窗口未满时沿用上次值
+              if (winTime === null || now - winTime >= instWindowMs) {
+                const winSec = winTime === null ? instWindowMs / 1000 : Math.max(now - winTime, 1) / 1000;
+                winRate = ((state.bytes - winBytes) * 8) / 1e6 / winSec;
+                winBytes = state.bytes;
+                winTime = now;
+              }
+              instMbps = winRate;
+            } else {
+              // 帧间差分：流式下载逐块到达，帧间速率即真实瞬时吞吐
+              const dtSec = Math.max(now - prevTime, 1) / 1000;
+              instMbps = ((state.bytes - prevBytes) * 8) / 1e6 / dtSec;
+            }
+            emaMbps = hasEma ? emaMbps * (1 - RING_EMA_ALPHA) + instMbps * RING_EMA_ALPHA : instMbps;
+            hasEma = true;
+            // 进度 = 已传输字节 / 总载荷（并发连接 × 每连接载荷），读满即 100%；
+            // 有连接失败时按剩余连接数折算，避免圆环卡在低于 100% 的位置
+            const progress = Math.min(state.bytes / Math.max(constants.capacityBytes, 1), 1);
+            elements.ringValue.textContent = emaMbps.toFixed(1);
+            elements.ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
+            elements.metricValue.textContent = emaMbps.toFixed(1);
+            if (onProgress) onProgress({ mbps: emaMbps, progress });
+          }
+          prevBytes = state.bytes;
+          prevTime = now;
+        }
+
+        /** rAF 主循环：页面不可见时浏览器暂停 rAF，由采样器兜底驱动 */
+        function renderLoop() {
+          if (done) return;
+          updateDisplay();
+          requestAnimationFrame(renderLoop);
+        }
+
+        // 200ms 采样器：push 样本供最终稳定段计算；同时驱动一次仪表盘——
+        // 页面不可见时浏览器暂停 rAF，采样器兜底保证仪表盘仍实时更新
+        const samplerId = setInterval(() => {
+          if (state.t0 !== null) {
+            samples.push({ t: performance.now() - state.t0, bytes: state.bytes });
+            updateDisplay();
+          }
+        }, SAMPLE_INTERVAL_MS);
+
+        /** 阶段结束（正常或失败路径都调用）：停采样器 */
+        function dispose() {
+          done = true;
+          clearInterval(samplerId);
+        }
+
+        /** 收尾：指标卡写最终值，环内文字与圆环恢复默认 */
+        function finish(finalMbps) {
+          elements.metricValue.textContent = finalMbps.toFixed(1);
+          elements.ringValue.textContent = '开始';
+          elements.ringSub.textContent = '点击测速';
+          elements.ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          if (onProgress) onProgress({ mbps: finalMbps, progress: 1 });
+        }
+
+        /**
+         * 最终值：稳定段 = 跳过前 max(20% 时长, 1000ms)（连接起步爬坡、拥塞窗口效应），
+         * 对窗口内累计字节取斜率；窗口样本不足时回退全程平均。
+         * @param {number} durationMs 测速时长（首字节到末字节）
+         * @returns {number} 稳定段平均吞吐（Mbps）
+         */
+        function stableMbps(durationMs) {
+          samples.push({ t: durationMs, bytes: state.bytes }); // 补尾部样本，稳定段覆盖末段
+          const skipMs = Math.max(durationMs * STABLE_SKIP_RATIO, STABLE_MIN_MS);
+          const stable = samples.filter((s) => s.t >= skipMs);
+          if (stable.length >= 2) {
+            const first = stable[0];
+            const last = stable[stable.length - 1];
+            return ((last.bytes - first.bytes) * 8) / 1e6 / (Math.max(last.t - first.t, 1) / 1000);
+          }
+          if (durationMs >= 1) return (state.bytes * 8) / 1e6 / (durationMs / 1000);
+          return 0;
+        }
+
+        return { renderLoop, updateDisplay, finish, resetUi, dispose, stableMbps };
+      }
+
       /* ========== 下载测速 ========== */
 
       // Cloudflare 测速端点：bytes=N 返回 N 字节随机数据并流式输出
@@ -428,15 +568,6 @@
       const DOWNLOAD_DURATION_MS = 8000;
       // 连接级超时：测试时长 + 余量。挂起连接在此超时并记失败，不无限拖长整体测试
       const DOWNLOAD_CONNECTION_TIMEOUT_MS = DOWNLOAD_DURATION_MS + 5000;
-      const DOWNLOAD_SAMPLE_INTERVAL_MS = 200; // 采样间隔：供最终稳定段计算
-      // 最终值取稳定段：跳过前 max(20% 时长, 1000ms)（连接起步爬坡、拥塞窗口效应），
-      // 对剩余窗口取平均吞吐
-      const DOWNLOAD_STABLE_SKIP_RATIO = 0.2;
-      // 稳定段最小绝对时长：1Gbps 等高带宽下总时长可能仅 ~1.5s，20% 比例会把窗口
-      // 压进慢启动爬坡段；1s 下限保证窗口至少覆盖一段稳态传输
-      const DOWNLOAD_STABLE_MIN_MS = 1000;
-      const RING_CIRCUMFERENCE = 754; // 圆环周长 2π×120；stroke-dashoffset 从 754 减到 0 表示进度 0→100%
-      const RING_EMA_ALPHA = 0.2; // 实时速率 EMA 平滑系数（rAF 每帧更新，越小越平滑）
 
       /**
        * 并发流式下载测速。
@@ -450,69 +581,31 @@
        *   最终下载速度（Mbps）、总传输字节、测速时长（ms）、失败连接数（0~3）
        */
       async function measureDownload(onProgress) {
-        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，lastByteAt = 最后一个字节到达时刻，
-        // done = 测试结束标记
-        const state = { t0: null, bytes: 0, lastByteAt: null, done: false };
-        const samples = []; // 200ms 采样 {t, bytes}，供最终稳定段计算
+        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，lastByteAt = 最后一个字节到达时刻
+        const state = { t0: null, bytes: 0, lastByteAt: null };
         const failures = []; // 逐连接失败记录：单个失败只跳过该连接，不中止整体
 
-        const ringValue = document.getElementById('ring-value');
-        const ringSub = document.getElementById('ring-sub');
-        const ringProgress = document.getElementById('ring-progress');
         const downloadValue = document.getElementById('download-value');
-        const prevDownloadText = downloadValue.textContent; // 失败时恢复卡片
-
-        // 进入测速 UI：环内数字清零、圆环复位
-        ringValue.textContent = '0.0';
-        ringSub.textContent = '下载测速中…';
-        ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
-
-        // rAF 渲染循环（主驱动）：帧间字节差 → 瞬时速率 → EMA 平滑 → 环内大数字 + 圆环进度
-        let emaMbps = 0;
-        let hasEma = false;
-        let prevBytes = 0;
-        let prevTime = null;
-        const updateDisplay = () => {
-          if (state.t0 === null || state.done) return;
-          const now = performance.now();
-          if (prevTime !== null) {
-            const dtSec = Math.max(now - prevTime, 1) / 1000;
-            const instMbps = ((state.bytes - prevBytes) * 8) / 1e6 / dtSec;
-            emaMbps = hasEma ? emaMbps * (1 - RING_EMA_ALPHA) + instMbps * RING_EMA_ALPHA : instMbps;
-            hasEma = true;
-            // 进度 = 已传输字节 / 总载荷（3 路 × 50MB），读满即 100%；
-            // 有连接失败时按剩余连接数折算，避免圆环卡在低于 100% 的位置
-            const progress = Math.min(
-              state.bytes /
-                Math.max(
-                  (DOWNLOAD_CONCURRENCY - failures.length) * DOWNLOAD_BYTES_PER_CONNECTION,
-                  1
-                ),
-              1
-            );
-            ringValue.textContent = emaMbps.toFixed(1);
-            ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
-            downloadValue.textContent = emaMbps.toFixed(1);
-            if (onProgress) onProgress({ mbps: emaMbps, progress });
-          }
-          prevBytes = state.bytes;
-          prevTime = now;
+        const prevDownloadText = downloadValue.textContent; // 失败时恢复卡片（阶段开始前的有效值）
+        // 进度分母需在阶段内随失败连接数折算（见 runConnection catch），故持对象引用
+        const constants = {
+          periodMs: DOWNLOAD_DURATION_MS,
+          capacityBytes: DOWNLOAD_CONCURRENCY * DOWNLOAD_BYTES_PER_CONNECTION,
         };
-        const renderLoop = () => {
-          if (state.done) return;
-          updateDisplay();
-          requestAnimationFrame(renderLoop);
-        };
-        requestAnimationFrame(renderLoop);
-
-        // 200ms 采样：push 样本供最终稳定段计算；同时驱动一次仪表盘——
-        // 页面不可见时浏览器暂停 rAF，采样器兜底保证仪表盘仍实时更新
-        const samplerId = setInterval(() => {
-          if (state.t0 !== null) {
-            samples.push({ t: performance.now() - state.t0, bytes: state.bytes });
-            updateDisplay();
-          }
-        }, DOWNLOAD_SAMPLE_INTERVAL_MS);
+        const meter = createRateMeter({
+          state,
+          constants,
+          elements: {
+            ringValue: document.getElementById('ring-value'),
+            ringSub: document.getElementById('ring-sub'),
+            ringProgress: document.getElementById('ring-progress'),
+            metricValue: downloadValue,
+          },
+          phaseLabel: '下载测速中…',
+          onProgress,
+        });
+        meter.resetUi();
+        requestAnimationFrame(meter.renderLoop);
 
         /** 单条连接：拉流并逐块累计字节；时长到或读满即止。失败仅记入 failures，不中止整体 */
         async function runConnection(i) {
@@ -544,20 +637,27 @@
             }
           } catch (err) {
             failures.push(err);
+            // 进度分母按剩余连接数折算，避免圆环卡在低于 100% 的位置
+            adjustCapacity();
           }
+        }
+
+        /** 进度分母按剩余连接数折算，避免圆环卡在低于 100% 的位置 */
+        function adjustCapacity() {
+          constants.capacityBytes =
+            (DOWNLOAD_CONCURRENCY - failures.length) * DOWNLOAD_BYTES_PER_CONNECTION;
         }
 
         const connections = [];
         for (let i = 0; i < DOWNLOAD_CONCURRENCY; i++) connections.push(runConnection(i));
         // 等全部连接收尾（成功或失败都算）；逐连接失败已被 runConnection 捕获
         await Promise.allSettled(connections);
-        state.done = true;
-        clearInterval(samplerId);
+        meter.dispose();
 
         // 全部连接失败，或总传输 0 字节（HTTP 200 但空/极小响应体）→ 没有有效数据，整体判失败
         if (failures.length === DOWNLOAD_CONCURRENCY || state.bytes === 0) {
-          resetRingText();
-          ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          resetRingText(); // 环内恢复默认
+          document.getElementById('ring-progress').style.strokeDashoffset = String(RING_CIRCUMFERENCE);
           downloadValue.textContent = prevDownloadText; // 卡片恢复上次的有效值
           throw new Error(
             failures.length
@@ -573,30 +673,163 @@
         // 测速时长：取最后一个字节到达的时刻（丢弃失败连接造成的空转尾段，
         // 避免稳定段窗口包含零斜率平线而拖低最终值）
         const durationMs = (state.lastByteAt ?? state.t0) - state.t0;
-        samples.push({ t: durationMs, bytes: state.bytes }); // 补尾部样本，稳定段覆盖末段
-
-        // 最终值：稳定段 = 跳过前 max(20% 时长, 1000ms)（连接起步爬坡、拥塞窗口效应），
-        // 对窗口内累计字节取斜率；窗口样本不足时回退全程平均
-        const skipMs = Math.max(durationMs * DOWNLOAD_STABLE_SKIP_RATIO, DOWNLOAD_STABLE_MIN_MS);
-        const stable = samples.filter((s) => s.t >= skipMs);
-        let downloadMbps = 0;
-        if (stable.length >= 2) {
-          const first = stable[0];
-          const last = stable[stable.length - 1];
-          downloadMbps =
-            ((last.bytes - first.bytes) * 8) / 1e6 / (Math.max(last.t - first.t, 1) / 1000);
-        } else if (durationMs >= 1) {
-          downloadMbps = (state.bytes * 8) / 1e6 / (durationMs / 1000);
-        }
+        const downloadMbps = meter.stableMbps(durationMs);
 
         // 收尾：指标卡写最终值，圆环恢复默认
-        downloadValue.textContent = downloadMbps.toFixed(1);
-        resetRingText();
-        ringProgress.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
-        if (onProgress) onProgress({ mbps: downloadMbps, progress: 1 });
+        meter.finish(downloadMbps);
 
         return {
           downloadMbps,
+          totalBytes: state.bytes,
+          durationMs,
+          failedConnections: failures.length,
+        };
+      }
+
+      /* ========== 上传测速 ========== */
+
+      // Cloudflare 测速端点：POST 任意数据体，响应 JSON 无需读取，传完即止
+      const UPLOAD_URL = 'https://speed.cloudflare.com/__up';
+      const UPLOAD_CONCURRENCY = 2; // 并发连接数
+      const UPLOAD_BYTES_PER_BATCH = 5 * 1024 * 1024; // 每批 5MB 随机数据
+      const UPLOAD_BATCHES_PER_CONNECTION = 3; // 每连接分批上传
+      // 每连接载荷 3×5MB=15MB，两路并发共 30MB 封顶；快传完时自动提前结束
+      const UPLOAD_BYTES_PER_CONNECTION = UPLOAD_BATCHES_PER_CONNECTION * UPLOAD_BYTES_PER_BATCH;
+      // 目标时长约 8 秒：约 30Mbps 的连接两路并发约 8 秒传满；更快时以传满提前结束
+      const UPLOAD_DURATION_MS = 8000;
+      // 连接级超时：测试时长 + 余量。挂起连接在此超时并记失败，不无限拖长整体测试
+      const UPLOAD_CONNECTION_TIMEOUT_MS = UPLOAD_DURATION_MS + 5000;
+
+      /**
+       * 生成 size 字节的密码学随机数据（Uint8Array）。
+       * crypto.getRandomValues 单次上限 65536 字节，超过需分块填充。
+       * @param {number} size 字节数
+       * @returns {Uint8Array}
+       */
+      function randomBytes(size) {
+        const chunkSize = 65536; // getRandomValues 单次调用上限
+        const buffer = new Uint8Array(size);
+        for (let offset = 0; offset < size; offset += chunkSize) {
+          crypto.getRandomValues(buffer.subarray(offset, Math.min(offset + chunkSize, size)));
+        }
+        return buffer;
+      }
+
+      /**
+       * 并发上传测速。
+       * 2 路并发 POST 随机数据（每连接 3 批 × 5MB），共享累计字节；rAF + 滑动窗口速率平滑
+       * 并驱动环内仪表盘；约 8 秒或全部连接传满载荷后停止，最终值取全程平均吞吐。
+       * 单个连接失败只跳过该连接（记入 failedConnections），不中止整体；
+       * 仅当全部连接失败或总传输 0 字节时才整体判失败。
+       * @param {(info: {mbps: number, progress: number}) => void} [onProgress]
+       *   每帧回调：实时平滑速率（Mbps）与传输进度 0~1；结束时以最终值 + progress: 1 调用一次
+       * @returns {Promise<{uploadMbps: number, totalBytes: number, durationMs: number, failedConnections: number}>}
+       *   最终上传速度（Mbps）、总传输字节、测速时长（ms）、失败连接数（0~2）
+       */
+      async function measureUpload(onProgress) {
+        // 共享状态：t0 = 计时起点，bytes = 全连接累计字节，lastByteAt = 最后一个字节发出时刻
+        const state = { t0: null, bytes: 0, lastByteAt: null };
+        const failures = []; // 逐连接失败记录：单个失败只跳过该连接，不中止整体
+
+        /** 每连接 5MB 随机载荷（Uint8Array + Blob）：重试时复用同一 payload，省去重复生成 */
+        const payload = randomBytes(UPLOAD_BYTES_PER_BATCH);
+        const body = new Blob([payload]);
+
+        const uploadValue = document.getElementById('upload-value');
+        const prevUploadText = uploadValue.textContent; // 失败时恢复卡片（阶段开始前的有效值）
+        // 进度分母需在阶段内随失败连接数折算（见 runConnection catch），故持对象引用
+        const constants = {
+          periodMs: UPLOAD_DURATION_MS,
+          capacityBytes: UPLOAD_CONCURRENCY * UPLOAD_BYTES_PER_CONNECTION,
+        };
+        const meter = createRateMeter({
+          state,
+          constants,
+          elements: {
+            ringValue: document.getElementById('ring-value'),
+            ringSub: document.getElementById('ring-sub'),
+            ringProgress: document.getElementById('ring-progress'),
+            metricValue: uploadValue,
+          },
+          phaseLabel: '上传测速中…',
+          instWindowMs: 1000, // 批次跳变下窗口速率才接近真实吞吐
+          onProgress,
+        });
+        meter.resetUi();
+        requestAnimationFrame(meter.renderLoop);
+
+        /** 单条连接：循环 3 批 POST；时长到或传满即止。失败仅记入 failures，不中止整体 */
+        async function runConnection(i) {
+          const url = `${UPLOAD_URL}?_=${Date.now()}-${i}`;
+          try {
+            for (let b = 0; b < UPLOAD_BATCHES_PER_CONNECTION; b++) {
+              const { response } = await fetchWithTiming(url, {
+                method: 'POST',
+                body,
+                timeoutMs: UPLOAD_CONNECTION_TIMEOUT_MS,
+              });
+              // CORS 会吞掉跨域响应体，此处只需校验请求是否被服务端接受；
+              // 正常情况返回 JSON（含 server-timing 等元数据），无需读取
+              if (!response.ok) throw new Error(`上传连接 ${i + 1} 失败：HTTP ${response.status}`);
+              state.bytes += body.size;
+              const now = performance.now();
+              state.lastByteAt = now;
+              // 计时起点：首批 body 提交完成时刻（response 落地即代表请求体已全部发出）——
+              // 浏览器 fetch 不暴露 body 开始传输的时刻，响应返回是唯一可靠的
+              // 「该批 body 已全部送达」信号；连接建立延迟对上传影响远小于下载，可忽略
+              if (state.t0 === null) state.t0 = now;
+              // 时长到即停（各连接自检同一时钟，约同时停止）
+              if (now - state.t0 >= UPLOAD_DURATION_MS) break;
+            }
+          } catch (err) {
+            failures.push(err);
+            // 失败批的 5MB 已送出，计入累计字节（供最终均值与后续批次进度折算）
+            state.bytes += body.size;
+            adjustCapacity();
+          }
+        }
+
+        /** 进度分母按剩余连接数折算，避免圆环卡在低于 100% 的位置 */
+        function adjustCapacity() {
+          constants.capacityBytes =
+            (UPLOAD_CONCURRENCY - failures.length) * UPLOAD_BYTES_PER_CONNECTION;
+        }
+
+        const connections = [];
+        for (let i = 0; i < UPLOAD_CONCURRENCY; i++) connections.push(runConnection(i));
+        // 等全部连接收尾（成功或失败都算）；逐连接失败已被 runConnection 捕获
+        await Promise.allSettled(connections);
+        meter.dispose();
+
+        // 全部连接失败，或总传输 0 字节（请求被拒但 HTTP 2xx）→ 没有有效数据，整体判失败
+        if (failures.length === UPLOAD_CONCURRENCY || state.bytes === 0) {
+          resetRingText(); // 环内恢复默认
+          document.getElementById('ring-progress').style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+          uploadValue.textContent = prevUploadText; // 卡片恢复上次的有效值
+          throw new Error(
+            failures.length
+              ? `上传测速失败：${failures.map((f) => f.message).join('；')}`
+              : '上传测速失败：连接均未上传数据'
+          );
+        }
+        if (failures.length > 0) {
+          // 部分连接失败：结果由剩余连接得出；仅记录，不打断测速
+          console.warn('上传测速：部分连接失败，已用其余连接出结果', failures);
+        }
+
+        // 测速时长：取最后一个字节发出的时刻（丢弃失败连接造成的空转尾段，
+        // 避免稳定段窗口包含零斜率平线而拖低最终值）
+        const durationMs = (state.lastByteAt ?? state.t0) - state.t0;
+        // 最终值 = 全程均值（bytes / duration）。上传字节以 5MB 批为单位跳变，
+        // 200ms 采样间的「斜率」只是批次落地时刻的噪音而非真实速率——
+        // 实测单批 5MB 在采样窗内落地会产生 >1Gbps 的虚假斜率，故不做稳定段斜率
+        const uploadMbps = (state.bytes * 8) / 1e6 / Math.max(durationMs / 1000, 1);
+
+        // 收尾：指标卡写最终值，圆环恢复默认
+        meter.finish(uploadMbps);
+
+        return {
+          uploadMbps,
           totalBytes: state.bytes,
           durationMs,
           failedConnections: failures.length,
@@ -651,10 +884,11 @@
         }
       });
 
-      // 测速引擎 API（Task 5 将扩展 measureUpload / runSpeedTest 并接管按钮编排）
+      // 测速引擎 API（Task 5 将接管按钮编排：runSpeedTest 依次调用三个测量函数）
       window.fetchWithTiming = fetchWithTiming;
       window.measureLatency = measureLatency;
       window.measureDownload = measureDownload;
+      window.measureUpload = measureUpload;
     })();
   </script>
 </body>
