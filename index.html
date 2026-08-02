@@ -367,16 +367,24 @@
       // Cloudflare 测速端点：bytes=0 返回空响应体，适合延迟探测
       const PING_URL = 'https://speed.cloudflare.com/__down?bytes=0';
       const PING_SAMPLES = 5;
+      // 单次延迟探测超时：网络挂起时中止请求，避免整个测速流程无限阻塞
+      const PING_TIMEOUT_MS = 10000;
 
       /**
-       * 带计时的 fetch 封装。
+       * 带计时的 fetch 封装，支持超时中止。
        * @param {string} url 请求地址
-       * @param {RequestInit} [options] 可选的 fetch 选项
+       * @param {RequestInit & {timeoutMs?: number}} [options]
+       *   fetch 选项；timeoutMs 为超时毫秒数（默认 15000）。
+       *   超时经 AbortSignal.timeout 实现，并与调用方传入的 signal 合并（任一触发即中止）。
        * @returns {Promise<{response: Response, durationMs: number}>} 响应与耗时（ms）
        */
-      async function fetchWithTiming(url, options) {
+      async function fetchWithTiming(url, options = {}) {
+        const { timeoutMs = 15000, signal, ...fetchOptions } = options;
         const start = performance.now();
-        const response = await fetch(url, options);
+        const mergedSignal = signal
+          ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)])
+          : AbortSignal.timeout(timeoutMs);
+        const response = await fetch(url, { ...fetchOptions, signal: mergedSignal });
         return { response, durationMs: performance.now() - start };
       }
 
@@ -386,12 +394,19 @@
        * @returns {Promise<{latencyMs: number, jitterMs: number}>}
        */
       async function measureLatency() {
-        // 预热请求（丢弃结果）：建立 DNS/连接/TLS，避免冷启动把抖动抬高到失真水平
-        await fetchWithTiming(`${PING_URL}&_=${Date.now()}-warmup`);
+        // 预热请求（丢弃结果）：建立 DNS/连接/TLS，避免冷启动把抖动抬高到失真水平。
+        // best-effort：失败则跳过，不阻塞采样。
+        try {
+          await fetchWithTiming(`${PING_URL}&_=${Date.now()}-warmup`, { timeoutMs: PING_TIMEOUT_MS });
+        } catch {
+          // 预热失败可忽略
+        }
         const samples = [];
         for (let i = 0; i < PING_SAMPLES; i++) {
           // 时间戳查询参数防浏览器缓存
-          const { durationMs } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-${i}`);
+          const { durationMs } = await fetchWithTiming(`${PING_URL}&_=${Date.now()}-${i}`, {
+            timeoutMs: PING_TIMEOUT_MS,
+          });
           samples.push(durationMs);
         }
         const latencyMs = Math.min(...samples);
@@ -420,13 +435,23 @@
         ringButton.setAttribute('aria-busy', String(busy));
       }
 
+      /** 环内文字恢复默认 */
+      function resetRingText() {
+        document.getElementById('ring-value').textContent = '开始';
+        document.getElementById('ring-sub').textContent = '点击测速';
+      }
+
       async function handleRingTrigger() {
         if (ringButton.getAttribute('aria-busy') === 'true') return; // 防重复触发
         setBusy(true);
+        resetRingText(); // 清除上次的失败提示，环内恢复默认
         try {
           await measureLatency();
         } catch (err) {
           console.error('延迟测量失败：', err);
+          // 用户可见的失败提示（基础版；Task 5 编排会统一各指标的失败展示）
+          document.getElementById('ring-value').textContent = '开始';
+          document.getElementById('ring-sub').textContent = '测速失败，请检查网络连接';
         } finally {
           setBusy(false);
         }
