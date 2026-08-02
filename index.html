@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网络测速 · SpeedTest</title>
+  <meta name="description" content="纯前端浏览器网络测速工具，测量下载、上传速度与延迟">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ========== 深色主题变量 ========== */
+    :root {
+      --bg: #0b1220;
+      --bg-gradient: radial-gradient(1200px 800px at 50% -10%, #152238 0%, #0b1220 55%, #070b14 100%);
+      --surface: #151d2e;
+      --surface-2: #1c2638;
+      --border: #26314a;
+      --text: #e8edf6;
+      --text-secondary: #8b96ab;
+      --accent: #22d3ee;
+      --accent-2: #3b82f6;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --ring-bg: #0b1220;
+    }
+
+    /* ========== 基础 ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      background: var(--bg);
+      background-image: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 48px 20px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+      flex: 1;
+    }
+
+    /* ========== 顶部标题 ========== */
+    .header { text-align: center; }
+
+    .logo { font-size: 40px; line-height: 1; }
+
+    .title {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ========== 状态行（服务器位置） ========== */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* ========== 中央大圆形测速按钮 ========== */
+    .test-area { display: flex; justify-content: center; }
+
+    .ring-button {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s ease;
+    }
+
+    .ring-button:hover { transform: scale(1.03); }
+
+    .ring-button:active { transform: scale(0.98); }
+
+    .ring-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+
+    .ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+
+    .ring-track,
+    .ring-progress {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+    }
+
+    .ring-track { stroke: var(--surface-2); }
+
+    /* 渐变进度圆环；stroke-dashoffset 由后续任务中的 JS 驱动 */
+    .ring-progress {
+      stroke: url(#ringGradient);
+      stroke-dasharray: 754;
+      stroke-dashoffset: 754;
+      transition: stroke-dashoffset 0.2s ease-out;
+    }
+
+    .ring-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ring-value {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .ring-sub { font-size: 13px; color: var(--text-secondary); }
+
+    /* ========== 三个指标卡 ========== */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease;
+    }
+
+    .metric-card:hover { border-color: var(--accent); }
+
+    .metric-label { font-size: 13px; color: var(--text-secondary); }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-sub { font-size: 12px; color: var(--text-secondary); }
+
+    /* ========== 底部结果详情表 + 速度分级色条 ========== */
+    .details {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .details-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .details-table th,
+    .details-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .details-table tr:last-child th,
+    .details-table tr:last-child td { border-bottom: none; }
+
+    .details-table th {
+      font-weight: 400;
+      color: var(--text-secondary);
+      width: 40%;
+    }
+
+    .details-table td {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .speed-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .scale-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .scale-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ========== 页脚 ========== */
+    .footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 480px) {
+      .metrics { grid-template-columns: 1fr; }
+      .ring-button { width: 220px; height: 220px; }
+      .ring-value { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+
+    <!-- 顶部标题 -->
+    <header class="header">
+      <div class="logo">⚡</div>
+      <h1 class="title">网络测速</h1>
+      <p class="subtitle">测量你的网络延迟、下载与上传速度</p>
+    </header>
+
+    <!-- 状态行：服务器位置 -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span id="server-location">正在检测服务器…</span>
+    </div>
+
+    <!-- 中央大圆形测速按钮（SVG 圆环进度 + 中间文字） -->
+    <section class="test-area" aria-label="测速控制">
+      <div class="ring-button" id="ring-button" role="button" aria-label="开始测速" tabindex="0">
+        <svg class="ring" viewBox="0 0 260 260" aria-hidden="true">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#22d3ee"></stop>
+              <stop offset="100%" stop-color="#3b82f6"></stop>
+            </linearGradient>
+          </defs>
+          <!-- 背景圆环 -->
+          <circle class="ring-track" cx="130" cy="130" r="120"></circle>
+          <!-- 进度圆环（stroke-dashoffset 由后续任务中的 JS 驱动） -->
+          <circle class="ring-progress" cx="130" cy="130" r="120"></circle>
+        </svg>
+        <div class="ring-content">
+          <div class="ring-value" id="ring-value">开始</div>
+          <div class="ring-sub" id="ring-sub">点击测速</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三个指标卡 -->
+    <section class="metrics" aria-label="测速指标">
+      <div class="metric-card">
+        <div class="metric-label">Ping</div>
+        <div class="metric-value" id="ping-value">—</div>
+        <div class="metric-sub" id="jitter-value">抖动 —</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">下载</div>
+        <div class="metric-value" id="download-value">—</div>
+        <div class="metric-sub">Mbps</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">上传</div>
+        <div class="metric-value" id="upload-value">—</div>
+        <div class="metric-sub">Mbps</div>
+      </div>
+    </section>
+
+    <!-- 底部结果详情表 + 速度分级色条 -->
+    <section class="details" aria-label="结果详情">
+      <h2 class="details-title">结果详情</h2>
+      <table class="details-table">
+        <tbody>
+          <tr><th>Ping</th><td id="detail-ping">—</td></tr>
+          <tr><th>抖动</th><td id="detail-jitter">—</td></tr>
+          <tr><th>下载速度</th><td id="detail-download">—</td></tr>
+          <tr><th>上传速度</th><td id="detail-upload">—</td></tr>
+          <tr><th>IP 地址</th><td id="detail-ip">—</td></tr>
+          <tr><th>服务器位置</th><td id="detail-server">—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="speed-scale" aria-label="速度分级">
+        <span class="scale-item"><i class="scale-dot" style="background:#22c55e"></i>极好</span>
+        <span class="scale-item"><i class="scale-dot" style="background:#84cc16"></i>好</span>
+        <span class="scale-item"><i class="scale-dot" style="background:#eab308"></i>一般</span>
+        <span class="scale-item"><i class="scale-dot" style="background:#ef4444"></i>差</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>测速流量直达 Cloudflare 边缘节点 · 数据仅在浏览器本地计算</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
